@@ -90,6 +90,20 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
 .desktop-nav a, .text-link, .back-to-top { transition: color 160ms ease; }
 .desktop-nav a:hover, .text-link:hover, .back-to-top:hover { color: var(--ink); }
 .header-controls { display: flex; align-items: center; gap: 10px; }
+.account-actions { display: flex; align-items: center; gap: 6px; }
+.account-button {
+  min-height: 40px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+.account-button:hover { transform: translateY(-1px); border-color: var(--line-strong); }
+.account-register { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.account-register:hover { border-color: var(--accent-strong); background: var(--accent-strong); }
 .language-switch {
   display: inline-flex;
   gap: 2px;
@@ -130,6 +144,35 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
 .theme-icon-sun { display: none; }
 :root[data-theme="dark"] .theme-icon-moon { display: none; }
 :root[data-theme="dark"] .theme-icon-sun { display: block; }
+.account-dialog {
+  width: min(calc(100% - 32px), 440px);
+  max-width: 440px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, .34);
+}
+.account-dialog::backdrop { background: rgba(2, 8, 4, .7); backdrop-filter: blur(4px); }
+.account-dialog-inner { position: relative; padding: 38px; }
+.dialog-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+}
+.dialog-kicker { margin: 0 0 13px; }
+.account-dialog h2 { max-width: 330px; margin: 0; font-size: clamp(27px, 6vw, 34px); line-height: 1.1; letter-spacing: -.06em; }
+.account-dialog #account-dialog-message { margin: 15px 0 25px; color: var(--muted); font-size: 14px; }
+.dialog-confirm { border: 0; cursor: pointer; }
 .section-wrap { width: min(calc(100% - 64px), var(--max-width)); margin: 0 auto; }
 .hero {
   position: relative;
@@ -331,6 +374,11 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
 @media (max-width: 480px) {
   .site-header, .section-wrap, .site-footer { width: min(calc(100% - 32px), var(--max-width)); }
   .header-brand { gap: 7px; font-size: 15px; }
+  .site-header { display: grid; grid-template-columns: 1fr; row-gap: 12px; min-height: 0; padding: 14px 0 12px; }
+  .header-controls { width: 100%; justify-content: space-between; gap: 5px; margin: 0; }
+  .account-actions { gap: 4px; }
+  .account-button { min-height: 36px; padding: 0 9px; font-size: 10px; }
+  .account-dialog-inner { padding: 34px 25px 26px; }
   .header-controls { gap: 6px; }
   .theme-toggle { width: 40px; min-width: 40px; padding: 0; }
   .theme-toggle span { display: none; }
@@ -354,3 +402,4 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
   .pixel-blink { animation: none; }
   .step-card:hover, .button:hover { transform: none; }
 }
+

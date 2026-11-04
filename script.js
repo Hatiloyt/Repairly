@@ -3,6 +3,8 @@
     pageTitle: "Repairly. — Reparaturwissen für Auto und Motorrad",
     description: "Repairly verbindet Auto- und Motorradfans mit Reparaturanleitungen aus der Community.",
     headerHome: "Repairly. Startseite",
+    loginLabel: "Anmelden",
+    registerLabel: "Registrieren",
     navHow: "So funktioniert’s",
     navAbout: "Verifizierung",
     languageLabel: "Sprache auswählen",
@@ -11,6 +13,11 @@
     darkMode: "Dunkelmodus",
     lightMode: "Hellmodus",
     logoLabel: "Repairly Logo",
+    dialogKicker: "ACCOUNT",
+    dialogTitle: "Im Moment noch nicht hier.",
+    dialogMessage: "Wende dich bitte an einen Mitarbeiter.",
+    dialogClose: "Schließen",
+    dialogCloseLabel: "Meldung schließen",
     eyebrow: "DIE COMMUNITY FÜR FAHRZEUGREPARATUREN",
     heroTitle: "Reparaturwissen für Auto und Motorrad.",
     heroCopy: "Finde Reparaturanleitungen für Autos und Motorräder, teile deine eigenen Reparaturen mit Ersatzteil-Links und lass erfolgreiche Lösungen von der Community bestätigen.",
@@ -39,6 +46,8 @@
     pageTitle: "Repairly. — Repair knowledge for cars and motorcycles",
     description: "Repairly connects car and motorcycle owners with repair guides shared by the community.",
     headerHome: "Repairly. Home",
+    loginLabel: "Log in",
+    registerLabel: "Register",
     navHow: "How it works",
     navAbout: "Verification",
     languageLabel: "Choose language",
@@ -47,6 +56,11 @@
     darkMode: "Dark mode",
     lightMode: "Light mode",
     logoLabel: "Repairly logo",
+    dialogKicker: "ACCOUNT",
+    dialogTitle: "Not available here yet.",
+    dialogMessage: "Please contact a staff member.",
+    dialogClose: "Close",
+    dialogCloseLabel: "Close message",
     eyebrow: "THE VEHICLE REPAIR COMMUNITY",
     heroTitle: "Repair know-how for cars and motorcycles.",
     heroCopy: "Find repair guides for cars and motorcycles, share your own repairs with spare-part links, and let the community confirm successful fixes.",
@@ -125,10 +139,20 @@ languageButtons.forEach(function (button) {
   });
 });
 
+const accountDialog = document.getElementById("account-dialog");
+document.querySelectorAll("[data-account-action]").forEach(function (button) {
+  button.addEventListener("click", function () {
+    accountDialog.showModal();
+  });
+});
+accountDialog.addEventListener("click", function (event) {
+  if (event.target === accountDialog) accountDialog.close();
+});
 let initialLanguage = "de";
 try {
   const storedLanguage = localStorage.getItem("repairly-language");
   if (translations[storedLanguage]) initialLanguage = storedLanguage;
 } catch (error) {}
 setLanguage(initialLanguage, false);
+
 

@@ -29,6 +29,10 @@
     </nav>
 
     <div class="header-controls">
+      <div class="account-actions">
+        <button class="account-button account-login" type="button" data-account-action data-i18n="loginLabel">Anmelden</button>
+        <button class="account-button account-register" type="button" data-account-action data-i18n="registerLabel">Registrieren</button>
+      </div>
       <div class="language-switch" role="group" data-i18n-aria-label="languageLabel" aria-label="Sprache auswählen">
         <button type="button" class="language-button is-active" data-language="de" aria-pressed="true">DE</button>
         <button type="button" class="language-button" data-language="en" aria-pressed="false">EN</button>
@@ -231,6 +235,15 @@
     </section>
   </main>
 
+  <dialog class="account-dialog" id="account-dialog" aria-labelledby="account-dialog-title" aria-describedby="account-dialog-message">
+    <form method="dialog" class="account-dialog-inner">
+      <button class="dialog-close" type="submit" value="close" data-i18n-aria-label="dialogCloseLabel" aria-label="Meldung schließen">×</button>
+      <p class="section-kicker dialog-kicker" data-i18n="dialogKicker">ACCOUNT</p>
+      <h2 id="account-dialog-title" data-i18n="dialogTitle">Im Moment noch nicht hier.</h2>
+      <p id="account-dialog-message" data-i18n="dialogMessage">Wende dich bitte an einen Mitarbeiter.</p>
+      <button class="button button-primary dialog-confirm" type="submit" value="close" data-i18n="dialogClose">Schließen</button>
+    </form>
+  </dialog>
   <footer class="site-footer">
     <a class="footer-brand" href="#top">Repairly<span class="brand-period">.</span></a>
     <p data-i18n="footerLine">Reparaturen gemeinsam dokumentieren. Inhalte und Funktionen sind Platzhalter.</p>
@@ -238,6 +251,7 @@
   </footer>
 </body>
 </html>
+
 
 
 
