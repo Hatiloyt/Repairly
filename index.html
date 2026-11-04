@@ -1,0 +1,244 @@
+﻿<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111713">
+  <meta name="description" content="Repairly verbindet Auto- und Motorradfans mit Reparaturanleitungen aus der Community.">
+  <title>Repairly. — Reparaturwissen für Auto und Motorrad</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    try {
+      const savedTheme = localStorage.getItem("repairly-theme-v2");
+
+      document.documentElement.dataset.theme = savedTheme === "light" ? "light" : "dark";
+    } catch (error) {}
+  </script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="header-brand" href="#top" data-i18n-aria-label="headerHome" aria-label="Repairly. Startseite">
+      <span class="brand-pixels" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span>Repairly<span class="brand-period">.</span></span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Hauptnavigation">
+      <a href="#how" data-i18n="navHow">So funktioniert’s</a>
+      <a href="#about" data-i18n="navAbout">Verifizierung</a>
+    </nav>
+
+    <div class="header-controls">
+      <div class="language-switch" role="group" data-i18n-aria-label="languageLabel" aria-label="Sprache auswählen">
+        <button type="button" class="language-button is-active" data-language="de" aria-pressed="true">DE</button>
+        <button type="button" class="language-button" data-language="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" data-i18n-aria-label="toggleToDark" aria-label="Dunkelmodus einschalten">
+        <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.1 15.7A8.6 8.6 0 0 1 8.3 3.9 8.7 8.7 0 1 0 20.1 15.7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/>
+        </svg>
+        <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/>
+        </svg>
+        <span id="theme-label">Dunkelmodus</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero section-wrap" aria-labelledby="hero-title">
+      <div class="hero-content">
+        <p class="eyebrow"><span class="eyebrow-mark" aria-hidden="true"></span><span data-i18n="eyebrow">DIE COMMUNITY FÜR FAHRZEUGREPARATUREN</span></p>
+        <div class="logo-stage" data-i18n-aria-label="logoLabel" aria-label="Repairly Logo">
+          <svg class="hero-logo" xmlns="http://www.w3.org/2000/svg" width="474" height="68" viewBox="0 0 474 68" role="img" aria-labelledby="repairly-logo-title">
+  <title id="repairly-logo-title">Repairly.</title>
+  <g fill="currentColor" shape-rendering="crispEdges">
+    <rect x="0" y="0" width="8" height="8" />
+    <rect x="10" y="0" width="8" height="8" />
+    <rect x="20" y="0" width="8" height="8" />
+    <rect x="30" y="0" width="8" height="8" class="pixel-blink" style="--blink-delay:0s" />
+    <rect x="0" y="10" width="8" height="8" />
+    <rect x="40" y="10" width="8" height="8" />
+    <rect x="0" y="20" width="8" height="8" />
+    <rect x="40" y="20" width="8" height="8" />
+    <rect x="0" y="30" width="8" height="8" />
+    <rect x="10" y="30" width="8" height="8" />
+    <rect x="20" y="30" width="8" height="8" />
+    <rect x="30" y="30" width="8" height="8" />
+    <rect x="0" y="40" width="8" height="8" />
+    <rect x="20" y="40" width="8" height="8" />
+    <rect x="0" y="50" width="8" height="8" />
+    <rect x="30" y="50" width="8" height="8" />
+    <rect x="0" y="60" width="8" height="8" />
+    <rect x="40" y="60" width="8" height="8" />
+    <rect x="71" y="14" width="6" height="6" />
+    <rect x="79" y="14" width="6" height="6" />
+    <rect x="87" y="14" width="6" height="6" />
+    <rect x="63" y="22" width="6" height="6" />
+    <rect x="95" y="22" width="6" height="6" />
+    <rect x="63" y="30" width="6" height="6" />
+    <rect x="71" y="30" width="6" height="6" />
+    <rect x="79" y="30" width="6" height="6" />
+    <rect x="87" y="30" width="6" height="6" />
+    <rect x="95" y="30" width="6" height="6" class="pixel-blink" style="--blink-delay:0.65s" />
+    <rect x="63" y="38" width="6" height="6" />
+    <rect x="63" y="46" width="6" height="6" />
+    <rect x="63" y="54" width="6" height="6" />
+    <rect x="95" y="54" width="6" height="6" />
+    <rect x="71" y="62" width="6" height="6" />
+    <rect x="79" y="62" width="6" height="6" />
+    <rect x="87" y="62" width="6" height="6" />
+    <rect x="121" y="14" width="6" height="6" />
+    <rect x="129" y="14" width="6" height="6" />
+    <rect x="137" y="14" width="6" height="6" />
+    <rect x="145" y="14" width="6" height="6" class="pixel-blink" style="--blink-delay:1.3s" />
+    <rect x="121" y="22" width="6" height="6" />
+    <rect x="153" y="22" width="6" height="6" />
+    <rect x="121" y="30" width="6" height="6" />
+    <rect x="153" y="30" width="6" height="6" />
+    <rect x="121" y="38" width="6" height="6" />
+    <rect x="129" y="38" width="6" height="6" />
+    <rect x="137" y="38" width="6" height="6" />
+    <rect x="145" y="38" width="6" height="6" />
+    <rect x="121" y="46" width="6" height="6" />
+    <rect x="121" y="54" width="6" height="6" />
+    <rect x="121" y="62" width="6" height="6" />
+    <rect x="187" y="14" width="6" height="6" />
+    <rect x="195" y="14" width="6" height="6" />
+    <rect x="203" y="14" width="6" height="6" />
+    <rect x="179" y="22" width="6" height="6" />
+    <rect x="211" y="22" width="6" height="6" />
+    <rect x="211" y="30" width="6" height="6" />
+    <rect x="187" y="38" width="6" height="6" />
+    <rect x="195" y="38" width="6" height="6" />
+    <rect x="203" y="38" width="6" height="6" />
+    <rect x="211" y="38" width="6" height="6" class="pixel-blink" style="--blink-delay:1.95s" />
+    <rect x="179" y="46" width="6" height="6" />
+    <rect x="211" y="46" width="6" height="6" />
+    <rect x="179" y="54" width="6" height="6" />
+    <rect x="211" y="54" width="6" height="6" />
+    <rect x="187" y="62" width="6" height="6" />
+    <rect x="195" y="62" width="6" height="6" />
+    <rect x="203" y="62" width="6" height="6" />
+    <rect x="211" y="62" width="6" height="6" />
+    <rect x="253" y="14" width="6" height="6" class="pixel-blink" style="--blink-delay:2.6s" />
+    <rect x="245" y="30" width="6" height="6" />
+    <rect x="253" y="30" width="6" height="6" />
+    <rect x="253" y="38" width="6" height="6" />
+    <rect x="253" y="46" width="6" height="6" />
+    <rect x="253" y="54" width="6" height="6" />
+    <rect x="245" y="62" width="6" height="6" />
+    <rect x="253" y="62" width="6" height="6" />
+    <rect x="261" y="62" width="6" height="6" />
+    <rect x="295" y="22" width="6" height="6" />
+    <rect x="311" y="22" width="6" height="6" class="pixel-blink" style="--blink-delay:3.1s" />
+    <rect x="319" y="22" width="6" height="6" />
+    <rect x="295" y="30" width="6" height="6" />
+    <rect x="303" y="30" width="6" height="6" />
+    <rect x="327" y="30" width="6" height="6" />
+    <rect x="295" y="38" width="6" height="6" />
+    <rect x="295" y="46" width="6" height="6" />
+    <rect x="295" y="54" width="6" height="6" />
+    <rect x="295" y="62" width="6" height="6" />
+    <rect x="361" y="14" width="6" height="6" />
+    <rect x="369" y="14" width="6" height="6" class="pixel-blink" style="--blink-delay:3.7s" />
+    <rect x="369" y="22" width="6" height="6" />
+    <rect x="369" y="30" width="6" height="6" />
+    <rect x="369" y="38" width="6" height="6" />
+    <rect x="369" y="46" width="6" height="6" />
+    <rect x="369" y="54" width="6" height="6" />
+    <rect x="361" y="62" width="6" height="6" />
+    <rect x="369" y="62" width="6" height="6" />
+    <rect x="377" y="62" width="6" height="6" />
+    <rect x="411" y="14" width="6" height="6" />
+    <rect x="443" y="14" width="6" height="6" />
+    <rect x="411" y="22" width="6" height="6" />
+    <rect x="443" y="22" width="6" height="6" />
+    <rect x="411" y="30" width="6" height="6" />
+    <rect x="443" y="30" width="6" height="6" />
+    <rect x="419" y="38" width="6" height="6" />
+    <rect x="427" y="38" width="6" height="6" />
+    <rect x="435" y="38" width="6" height="6" />
+    <rect x="443" y="38" width="6" height="6" />
+    <rect x="443" y="46" width="6" height="6" />
+    <rect x="435" y="54" width="6" height="6" class="pixel-blink" style="--blink-delay:4.2s" />
+    <rect x="411" y="62" width="6" height="6" />
+    <rect x="419" y="62" width="6" height="6" />
+    <rect x="427" y="62" width="6" height="6" />
+    <rect x="466" y="62" width="6" height="6" class="pixel-blink" style="--blink-delay:2.25s" />  </g>
+</svg>
+          <span class="floating-pixel floating-pixel-one" aria-hidden="true"></span>
+          <span class="floating-pixel floating-pixel-two" aria-hidden="true"></span>
+          <span class="floating-pixel floating-pixel-three" aria-hidden="true"></span>
+        </div>
+        <h1 id="hero-title" data-i18n="heroTitle">Reparaturwissen für Auto und Motorrad.</h1>
+        <p class="hero-description" data-i18n="heroCopy">Finde Reparaturanleitungen für Autos und Motorräder, teile deine eigenen Reparaturen mit Ersatzteil-Links und lass erfolgreiche Lösungen von der Community bestätigen.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#how">
+            <span data-i18n="heroCta">So funktioniert Repairly</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"/></svg>
+          </a>
+          <a class="text-link" href="#about" data-i18n="heroLink">Community-Verifizierung</a>
+        </div>
+        <span class="placeholder-tag"><span aria-hidden="true"></span><span data-i18n="placeholderTag">KONZEPTVORSCHAU · PLATZHALTERTEXTE</span></span>
+      </div>
+      <div class="hero-side-note" aria-hidden="true">
+        <span class="side-note-line"></span>
+        <span>RLY—001</span>
+      </div>
+    </section>
+
+    <section class="how-section section-wrap" id="how" aria-labelledby="how-title">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker" data-i18n="howKicker">VON DER COMMUNITY</p>
+          <h2 id="how-title" data-i18n="howTitle">Teilen, nachmachen, gemeinsam verifizieren.</h2>
+        </div>
+        <p class="section-intro" data-i18n="howIntro">Repairly verbindet Menschen, die Reparaturen selbst durchführen, mit denen, die ihr Wissen dazu weitergeben.</p>
+      </div>
+
+      <div class="steps-grid">
+        <article class="step-card">
+          <div class="step-topline"><span class="step-number">01</span><span class="step-icon" aria-hidden="true">+</span></div>
+          <h3 data-i18n="stepOneTitle">Reparatur posten</h3>
+          <p data-i18n="stepOneCopy">Lege einen Account an und veröffentliche deine Reparatur als Beitrag. Beschreibe die Arbeitsschritte für Auto oder Motorrad und verlinke passende Ersatzteile. (Platzhalter)</p>
+        </article>
+        <article class="step-card">
+          <div class="step-topline"><span class="step-number">02</span><span class="step-icon step-icon-search" aria-hidden="true">⌕</span></div>
+          <h3 data-i18n="stepTwoTitle">Reparatur nachmachen</h3>
+          <p data-i18n="stepTwoCopy">Finde Beiträge zu deinem Fahrzeug, folge der Anleitung und nutze die Ersatzteil-Links für die benötigten Teile. (Platzhalter)</p>
+        </article>
+        <article class="step-card">
+          <div class="step-topline"><span class="step-number">03</span><span class="step-icon step-icon-check" aria-hidden="true">↗</span></div>
+          <h3 data-i18n="stepThreeTitle">Erfolg verifizieren</h3>
+          <p data-i18n="stepThreeCopy">Hat die Reparatur funktioniert? Bestätige den erfolgreichen Nachbau mit deinem Account. Bei zehn Bestätigungen wird der Beitrag als verifiziert markiert. (Platzhalter)</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="about-section section-wrap" id="about" aria-labelledby="about-title">
+      <div class="about-label">
+        <span class="about-spark" aria-hidden="true">✳</span>
+        <p class="section-kicker" data-i18n="aboutKicker">VERTRAUEN DURCH NACHMACHEN</p>
+      </div>
+      <div class="about-copy">
+        <h2 id="about-title" data-i18n="aboutTitle">Zehn erfolgreiche Nachbauten. Ein verifizierter Beitrag.</h2>
+        <p data-i18n="aboutCopy">Lege einen Account an, teile deine Reparatur-Erfahrungen und probiere Anleitungen anderer aus. Nach erfolgreicher Reparatur kannst du den Beitrag bestätigen. Sobald zehn Personen den Erfolg bestätigt haben, erhält er das Abzeichen „Community-verifiziert“.</p>
+        <a href="#top" class="back-to-top"><span data-i18n="backToTop">Zurück nach oben</span><span aria-hidden="true">↑</span></a>
+      </div>
+      <div class="about-stamp" aria-hidden="true"><span data-i18n="proofStampOne">10×</span><span data-i18n="proofStampTwo">ERFOLGREICH</span><span data-i18n="proofStampThree">BESTÄTIGT</span></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a class="footer-brand" href="#top">Repairly<span class="brand-period">.</span></a>
+    <p data-i18n="footerLine">Reparaturen gemeinsam dokumentieren. Inhalte und Funktionen sind Platzhalter.</p>
+    <span class="footer-pixel" aria-hidden="true"></span>
+  </footer>
+</body>
+</html>
+
+
+
+
