@@ -1,0 +1,735 @@
+/**
+ * @license MIT
+ * @copyright Copyright (c) 2026, GoldFrite
+ */
+import { EMLLibError, ErrorType } from '../../types/errors.js';
+import png from '../utils/png.js';
+export default class Skin {
+    /**
+     * Manage the player's skin, avatar and cape.
+     * @param account The account of the player (must be authenticated with EML Lib's authentication
+     * system).
+     */
+    constructor(account) {
+        this.skins = [];
+        this.capes = [];
+        this.avatar = null;
+        this.account = account;
+        this.cached = false;
+    }
+    /**
+     * @deprecated Use `getSkins()` instead.
+     */
+    async getSkin(active = false) {
+        return await this.getSkins(active);
+    }
+    /**
+     * Get the player's skin. If the player has no skin, an empty array is returned.
+     *
+     * **Note:** Data returned by this method may be cached. Call `reload()` to fetch the latest data
+     * from the server.
+     *
+     * @param active Whether to only return active skins (i.e., the skin currently used by the
+     * player). If `false`, all skins are returned, including inactive ones.
+     * @returns The list of the player's skins.
+     */
+    async getSkins(active = false) {
+        if (!this.cached)
+            await this.reload();
+        return this.skins.filter((skin) => !active || skin.state === 'active');
+    }
+    /**
+     * @deprecated Use `getCapes()` instead.
+     */
+    async getCape(active = false) {
+        return await this.getCapes(active);
+    }
+    /**
+     * Get the player's cape. If the player has no cape, an empty array is returned.
+     *
+     * **Note:** Data returned by this method may be cached. Call `reload()` to fetch the latest data
+     * from the server.
+     *
+     * @param active Whether to only return active capes (i.e., the cape currently used by the
+     * player). If `false`, all capes are returned, including inactive ones.
+     * @returns The list of the player's capes.
+     */
+    async getCapes(active = false) {
+        if (!this.cached)
+            await this.reload();
+        return this.capes.filter((cape) => !active || cape.state === 'active');
+    }
+    /**
+     * Get the player's avatar. If the player has no avatar, `null` is returned.
+     *
+     * **Note:** Data returned by this method may be cached. Call `reload()` to fetch the latest data
+     * from the server.
+     *
+     * @returns The player's avatar.
+     */
+    async getAvatar() {
+        if (!this.cached)
+            await this.reload();
+        return this.avatar;
+    }
+    /**
+     * Reload the player's skin, cape and avatar data from the server. This is useful to get the
+     * latest data after the player has changed their skin or cape, or if you want to make sure you
+     * have the latest data from the server.
+     */
+    async reload() {
+        if (this.account.meta.type === 'msa') {
+            await this.fetchFromMicrosoft();
+            this.cached = true;
+        }
+        else if (this.account.meta.type === 'yggdrasil') {
+            await this.fetchFromYggdrasil();
+            this.cached = true;
+        }
+        else if (this.account.meta.type === 'azuriom') {
+            await this.fetchFromAzuriom();
+            this.cached = true;
+        }
+        else {
+            throw new EMLLibError(ErrorType.CONFIG_ERROR, `Unsupported account type: ${this.account.meta.type}`);
+        }
+    }
+    /**
+     * Upload a new skin for the player and activate it. Cache is automatically updated after a
+     * successful update.
+     * @param source The source file of the skin. The image should be a `.png` file of the skin,
+     * and must follow the standard Minecraft skin format (64x64 pixels, or 64x32 pixels for legacy
+     * skins). You can also provide a URL to the skin image.
+     * @param variant The skin variant to use. This is only relevant for Minecraft accounts that have
+     * both a classic and a slim skin. If the account only has one skin variant, this parameter is
+     * ignored.
+     */
+    async updateSkin(source, variant = 'classic') {
+        if (this.account.meta.type === 'msa') {
+            await this.uploadSkinToMicrosoft(source, variant);
+        }
+        else if (this.account.meta.type === 'yggdrasil') {
+            await this.uploadSkinToYggdrasil(source, variant);
+        }
+        else if (this.account.meta.type === 'azuriom') {
+            await this.uploadSkinToAzuriom(source);
+        }
+        else {
+            throw new EMLLibError(ErrorType.CONFIG_ERROR, `Unsupported account type: ${this.account.meta.type}`);
+        }
+    }
+    /**
+     * Upload a new cape for the player and activate it. Cache is automatically updated after a
+     * successful update.
+     *
+     * **Attention!** This method only works for Azuriom accounts.
+     *
+     * @param source The source file of the cape. The image should be a `.png` file of the cape, and
+     * must follow the standard Minecraft cape format (64x32 pixels). You can also provide a URL
+     * to the cape image.
+     */
+    async updateCape(source) {
+        if (this.account.meta.type === 'msa') {
+            throw new EMLLibError(ErrorType.CONFIG_ERROR, `Microsoft accounts don't allow custom capes. Please use switchCape() to switch between the capes available on the player's account instead of uploading a new one.`);
+        }
+        else if (this.account.meta.type === 'yggdrasil') {
+            throw new EMLLibError(ErrorType.CONFIG_ERROR, `Yggdrasil accounts don't allow custom capes. User must change their cape manually on the Yggdrasil-compatible server.`);
+        }
+        else if (this.account.meta.type === 'azuriom') {
+            await this.uploadCapeToAzuriom(source);
+        }
+        else {
+            throw new EMLLibError(ErrorType.CONFIG_ERROR, `Unsupported account type: ${this.account.meta.type}`);
+        }
+    }
+    /**
+     * Delete the player's cape. Cache is automatically updated after a successful update.
+     *
+     * **Note:** Microsoft accounts doesn't allow custom capes. Please use `hideCape()` to hide the
+     * player's cape instead of deleting it, as they don't support deleting capes.
+     */
+    async deleteCape() {
+        if (this.account.meta.type === 'msa') {
+            throw new EMLLibError(ErrorType.CONFIG_ERROR, `Microsoft accounts don't allow custom capes. Please use hideCape() to hide the player's cape instead of deleting it, as they don't support deleting capes.`);
+        }
+        else if (this.account.meta.type === 'yggdrasil') {
+            await this.deleteCapeFromYggdrasil();
+        }
+        else if (this.account.meta.type === 'azuriom') {
+            await this.deleteCapeFromAzuriom();
+        }
+        else {
+            throw new EMLLibError(ErrorType.CONFIG_ERROR, `Unsupported account type: ${this.account.meta.type}`);
+        }
+    }
+    /**
+     * Switch the player's active cape.
+     *
+     * **Note:** This method only works for Microsoft accounts. Please use `updateCape()` to update
+     * the cape for other account types, as they don't support multiple capes.
+     *
+     * @param capeId The ID of the cape to activate. You can get the list of the player's capes and
+     * their IDs with the `getCape()` method.
+     */
+    async switchCape(capeId) {
+        if (this.account.meta.type === 'msa') {
+            await this.switchCapeOnMicrosoft(capeId);
+        }
+        else {
+            throw new EMLLibError(ErrorType.CONFIG_ERROR, `Unsupported account type: ${this.account.meta.type}`);
+        }
+    }
+    /**
+     * Hide the player's cape. Cache is automatically updated after a successful update.
+     *
+     * **Note:** This method only works for Microsoft accounts. Please use `deleteCape()` to delete
+     * the cape for other account types, as they don't support hiding capes.
+     */
+    async hideCape() {
+        if (this.account.meta.type === 'msa') {
+            await this.hideCapeOnMicrosoft();
+        }
+        else {
+            throw new EMLLibError(ErrorType.CONFIG_ERROR, `Unsupported account type: ${this.account.meta.type}`);
+        }
+    }
+    async fetchFromMicrosoft() {
+        try {
+            const req = await fetch('https://api.minecraftservices.com/minecraft/profile', {
+                headers: {
+                    Authorization: `Bearer ${this.account.accessToken}`
+                }
+            });
+            if (!req.ok) {
+                const errorText = await req.text();
+                throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while fetching skin data from Microsoft: HTTP ${req.status} ${errorText}`);
+            }
+            const data = await req.json();
+            this.skins =
+                data?.skins?.map((skin) => ({
+                    id: skin.id,
+                    url: skin.url,
+                    state: skin.state === 'ACTIVE' ? 'active' : 'inactive',
+                    variant: skin.variant === 'SLIM' ? 'slim' : 'classic'
+                })) ?? [];
+            this.capes =
+                data?.capes?.map((cape) => ({
+                    id: cape.id,
+                    url: cape.url,
+                    state: cape.state.toLowerCase(),
+                    alias: cape.alias
+                })) ?? [];
+            this.avatar = {
+                id: this.account.uuid,
+                url: await this.getAvatarFromSkin(this.skins.find((skin) => skin.state === 'active')?.url ?? this.skins[0]?.url ?? null)
+            };
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while checking for updates: ${err.message ?? err}`);
+        }
+    }
+    async fetchFromYggdrasil() {
+        try {
+            const req = await fetch(`${this.account.meta.url}/session/minecraft/profile/${this.account.uuid}`);
+            if (!req.ok) {
+                const errorText = await req.text();
+                throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while fetching skin data from Yggdrasil server: HTTP ${req.status} ${errorText}`);
+            }
+            const data = await req.json();
+            const textures = data.properties?.find((prop) => prop.name === 'textures')?.value;
+            if (textures) {
+                const decoded = JSON.parse(atob(textures));
+                if (decoded.textures?.SKIN) {
+                    this.skins = [
+                        {
+                            id: decoded.textures.SKIN.url,
+                            url: decoded.textures.SKIN.url,
+                            state: 'active',
+                            variant: decoded.textures.SKIN.metadata?.model === 'slim' ? 'slim' : 'classic'
+                        }
+                    ];
+                    this.avatar = {
+                        id: this.account.uuid,
+                        url: await this.getAvatarFromSkin(decoded.textures.SKIN.url)
+                    };
+                }
+                else {
+                    this.skins = [];
+                    this.avatar = null;
+                }
+                if (decoded.textures?.CAPE) {
+                    this.capes = [
+                        {
+                            id: decoded.textures.CAPE.url,
+                            url: decoded.textures.CAPE.url,
+                            state: 'active',
+                            alias: 'cape'
+                        }
+                    ];
+                }
+                else {
+                    this.capes = [];
+                }
+            }
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while checking for updates: ${err.message ?? err}`);
+        }
+    }
+    async fetchFromAzuriom() {
+        try {
+            const req1 = await fetch(`${this.account.meta.url}/api/skin-api/skins/${this.account.name}`);
+            if (!req1.ok) {
+                if (req1.status === 404) {
+                    this.skins = [];
+                    return;
+                }
+                else {
+                    const errorText = await req1.text();
+                    throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while fetching skin data from Azuriom server: HTTP ${req1.status} ${errorText}`);
+                }
+            }
+            this.skins = [
+                {
+                    id: this.account.uuid,
+                    url: `${this.account.meta.url}/api/skin-api/skins/${this.account.name}`,
+                    state: 'active',
+                    variant: 'classic'
+                }
+            ];
+            const req2 = await fetch(`${this.account.meta.url}/api/skin-api/capes/${this.account.name}`);
+            if (!req2.ok) {
+                if (req2.status === 404) {
+                    this.capes = [];
+                    return;
+                }
+                else {
+                    const errorText = await req2.text();
+                    throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while fetching cape data from Azuriom server: HTTP ${req2.status} ${errorText}`);
+                }
+            }
+            this.capes = [
+                {
+                    id: this.account.uuid,
+                    url: `${this.account.meta.url}/api/skin-api/capes/${this.account.name}`,
+                    state: 'active',
+                    alias: 'cape'
+                }
+            ];
+            if (this.skins.length > 0) {
+                this.avatar = {
+                    id: this.account.uuid,
+                    url: `${this.account.meta.url}/api/skin-api/avatars/face/${this.account.name}`
+                };
+            }
+            else {
+                this.avatar = null;
+            }
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while checking for updates: ${err.message ?? err}`);
+        }
+    }
+    async uploadSkinToMicrosoft(source, variant) {
+        const headers = { Authorization: `Bearer ${this.account.accessToken}` };
+        try {
+            const body = new FormData();
+            if (typeof source === 'string') {
+                const image = await fetch(source).then((res) => {
+                    if (!res.ok) {
+                        throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while fetching skin image from URL: HTTP ${res.status} ${res.statusText}`);
+                    }
+                    return res.blob();
+                });
+                body.append('file', image, 'skin.png');
+                body.append('variant', variant);
+            }
+            else {
+                body.append('file', source, 'skin.png');
+                body.append('variant', variant);
+            }
+            const req = await fetch('https://api.minecraftservices.com/minecraft/profile/skins', { method: 'POST', headers, body });
+            if (!req.ok) {
+                const errorText = await req.text();
+                if (req.status === 429) {
+                    throw new EMLLibError(ErrorType.TOO_MANY_REQUESTS, `Too many requests while uploading skin to Microsoft: HTTP ${req.status} ${errorText}`);
+                }
+                throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while uploading skin to Microsoft: HTTP ${req.status} ${errorText}`);
+            }
+            const data = await req.json();
+            this.skins =
+                data?.skins?.map((skin) => ({
+                    id: skin.id,
+                    url: skin.url,
+                    state: skin.state === 'ACTIVE' ? 'active' : 'inactive',
+                    variant: skin.variant === 'SLIM' ? 'slim' : 'classic'
+                })) ?? this.skins;
+            this.avatar = {
+                id: this.account.uuid,
+                url: await this.getAvatarFromSkin(this.skins[0].url)
+            };
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while uploading skin to Microsoft: ${err.message ?? err}`);
+        }
+    }
+    async uploadSkinToYggdrasil(source, variant) {
+        const headers = { Authorization: `Bearer ${this.account.accessToken}` };
+        try {
+            const body = new FormData();
+            if (typeof source === 'string') {
+                const image = await fetch(source).then((res) => {
+                    if (!res.ok) {
+                        throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while fetching skin image from URL: HTTP ${res.status} ${res.statusText}`);
+                    }
+                    return res.blob();
+                });
+                body.append('file', image, 'skin.png');
+                body.append('variant', variant);
+            }
+            else {
+                body.append('file', source, 'skin.png');
+                body.append('variant', variant);
+            }
+            const req = await fetch(`${this.account.meta.url}/minecraft/profile/skins`, { method: 'POST', headers, body });
+            if (!req.ok) {
+                const errorText = await req.text();
+                if (req.status === 429) {
+                    throw new EMLLibError(ErrorType.TOO_MANY_REQUESTS, `Too many requests while uploading skin to ${this.account.meta.type === 'msa' ? 'Microsoft' : 'Yggdrasil'}: HTTP ${req.status} ${errorText}`);
+                }
+                throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while uploading skin to ${this.account.meta.type === 'msa' ? 'Microsoft' : 'Yggdrasil'}: HTTP ${req.status} ${errorText}`);
+            }
+            const data = await req.json();
+            this.skins =
+                data?.skins?.map((skin) => ({
+                    id: skin.id,
+                    url: skin.url,
+                    state: skin.state === 'ACTIVE' ? 'active' : 'inactive',
+                    variant: skin.variant === 'SLIM' ? 'slim' : 'classic'
+                })) ?? this.skins;
+            this.avatar = {
+                id: this.account.uuid,
+                url: await this.getAvatarFromSkin(this.skins[0].url)
+            };
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while uploading skin to ${this.account.meta.type === 'msa' ? 'Microsoft' : 'Yggdrasil'}: ${err.message ?? err}`);
+        }
+    }
+    async uploadSkinToAzuriom(source) {
+        try {
+            let image;
+            if (typeof source === 'string') {
+                image = await fetch(source).then((res) => {
+                    if (!res.ok) {
+                        throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while fetching skin image from URL: HTTP ${res.status} ${res.statusText}`);
+                    }
+                    return res.blob();
+                });
+            }
+            else {
+                image = source;
+            }
+            const body = new FormData();
+            body.append('skin', image, 'skin.png');
+            body.append('access_token', this.account.accessToken);
+            const req = await fetch(`${this.account.meta.url}/api/skin-api/skins`, {
+                method: 'POST',
+                body
+            });
+            if (!req.ok) {
+                const errorText = await req.text();
+                throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while uploading skin to Azuriom server: HTTP ${req.status} ${errorText}`);
+            }
+            await this.fetchFromAzuriom();
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while uploading skin to Azuriom server: ${err.message ?? err}`);
+        }
+    }
+    async switchCapeOnMicrosoft(capeId) {
+        try {
+            const req = await fetch('https://api.minecraftservices.com/minecraft/profile/capes/active', {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${this.account.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    capeId
+                })
+            });
+            if (!req.ok) {
+                const errorText = await req.text();
+                throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while switching cape on Microsoft: HTTP ${req.status} ${errorText}`);
+            }
+            const data = await req.json();
+            this.capes =
+                data?.capes?.map((cape) => ({
+                    id: cape.id,
+                    url: cape.url,
+                    state: cape.state === 'ACTIVE' ? 'active' : 'inactive',
+                    alias: cape.alias
+                })) ?? [];
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while switching cape on Microsoft: ${err.message ?? err}`);
+        }
+    }
+    async hideCapeOnMicrosoft() {
+        try {
+            const req = await fetch('https://api.minecraftservices.com/minecraft/profile/capes/active', {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${this.account.accessToken}`
+                }
+            });
+            if (!req.ok) {
+                const errorText = await req.text();
+                throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while hiding cape on Microsoft: HTTP ${req.status} ${errorText}`);
+            }
+            const data = await req.json();
+            if (data?.capes) {
+                this.capes = data.capes.map((cape) => ({
+                    id: cape.id,
+                    url: cape.url,
+                    state: cape.state === 'ACTIVE' ? 'active' : 'inactive',
+                    alias: cape.alias
+                }));
+            }
+            else {
+                await this.fetchFromMicrosoft();
+            }
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while hiding cape on Microsoft: ${err.message ?? err}`);
+        }
+    }
+    async deleteCapeFromYggdrasil() {
+        try {
+            const req = await fetch(`${this.account.meta.url}/minecraft/profile/capes/active`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${this.account.accessToken}`
+                }
+            });
+            if (!req.ok) {
+                const errorText = await req.text();
+                throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while hiding cape on Yggdrasil: HTTP ${req.status} ${errorText}`);
+            }
+            await this.fetchFromYggdrasil();
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while hiding cape on Yggdrasil: ${err.message ?? err}`);
+        }
+    }
+    async uploadCapeToAzuriom(source) {
+        try {
+            let image;
+            if (typeof source === 'string') {
+                image = await fetch(source).then((res) => {
+                    if (!res.ok) {
+                        throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while fetching cape image from URL: HTTP ${res.status} ${res.statusText}`);
+                    }
+                    return res.blob();
+                });
+            }
+            else {
+                image = source;
+            }
+            const formData = new FormData();
+            formData.append('cape', image, 'cape.png');
+            formData.append('access_token', this.account.accessToken);
+            const req = await fetch(`${this.account.meta.url}/api/skin-api/capes`, {
+                method: 'POST',
+                body: formData
+            });
+            if (!req.ok) {
+                const errorText = await req.text();
+                throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while uploading cape to Azuriom server: HTTP ${req.status} ${errorText}`);
+            }
+            await this.fetchFromAzuriom();
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while uploading cape to Azuriom server: ${err.message ?? err}`);
+        }
+    }
+    async deleteCapeFromAzuriom() {
+        try {
+            const formData = new FormData();
+            formData.append('access_token', this.account.accessToken);
+            const req = await fetch(`${this.account.meta.url}/api/skin-api/capes`, {
+                method: 'DELETE',
+                body: formData
+            });
+            if (!req.ok) {
+                const errorText = await req.text();
+                throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while deleting cape from Azuriom server: HTTP ${req.status} ${errorText}`);
+            }
+            await this.fetchFromAzuriom();
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while deleting cape from Azuriom server: ${err.message ?? err}`);
+        }
+    }
+    async getAvatarFromSkin(skinUrl, size = 256) {
+        if (!skinUrl)
+            return null;
+        try {
+            const req = await fetch(skinUrl);
+            if (!req.ok) {
+                throw new EMLLibError(ErrorType.FETCH_ERROR, `Failed to fetch skin: HTTP ${req.status}`);
+            }
+            const arrayBuffer = await req.arrayBuffer();
+            const skin = await png.decodeSkin(new Uint8Array(arrayBuffer));
+            const base8x8 = new Uint8Array(8 * 8 * 4);
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    const dstIdx = (y * 8 + x) * 4;
+                    const headIdx = ((y + 8) * skin.width + (x + 8)) * 4;
+                    const hatIdx = ((y + 8) * skin.width + (x + 40)) * 4;
+                    const hatAlpha = skin.data[hatIdx + 3];
+                    if (hatAlpha > 0) {
+                        const a = hatAlpha / 255;
+                        base8x8[dstIdx + 0] = Math.round(skin.data[hatIdx + 0] * a + skin.data[headIdx + 0] * (1 - a));
+                        base8x8[dstIdx + 1] = Math.round(skin.data[hatIdx + 1] * a + skin.data[headIdx + 1] * (1 - a));
+                        base8x8[dstIdx + 2] = Math.round(skin.data[hatIdx + 2] * a + skin.data[headIdx + 2] * (1 - a));
+                        base8x8[dstIdx + 3] = 255;
+                    }
+                    else {
+                        base8x8[dstIdx + 0] = skin.data[headIdx + 0];
+                        base8x8[dstIdx + 1] = skin.data[headIdx + 1];
+                        base8x8[dstIdx + 2] = skin.data[headIdx + 2];
+                        base8x8[dstIdx + 3] = 255;
+                    }
+                }
+            }
+            const scaled = new Uint8Array(size * size * 4);
+            for (let y = 0; y < size; y++) {
+                const srcY = Math.floor((y / size) * 8);
+                for (let x = 0; x < size; x++) {
+                    const srcX = Math.floor((x / size) * 8);
+                    const srcIdx = (srcY * 8 + srcX) * 4;
+                    const dstIdx = (y * size + x) * 4;
+                    scaled[dstIdx + 0] = base8x8[srcIdx + 0];
+                    scaled[dstIdx + 1] = base8x8[srcIdx + 1];
+                    scaled[dstIdx + 2] = base8x8[srcIdx + 2];
+                    scaled[dstIdx + 3] = base8x8[srcIdx + 3];
+                }
+            }
+            const pngBytes = await png.encodeRGBA(scaled, size, size);
+            let base64 = '';
+            if (typeof Buffer !== 'undefined') {
+                base64 = Buffer.from(pngBytes).toString('base64');
+            }
+            else {
+                let binary = '';
+                for (let i = 0; i < pngBytes.byteLength; i++) {
+                    binary += String.fromCharCode(pngBytes[i]);
+                }
+                base64 = btoa(binary);
+            }
+            return `data:image/png;base64,${base64}`;
+        }
+        catch (err) {
+            if (err instanceof EMLLibError)
+                throw err;
+            throw new EMLLibError(ErrorType.FETCH_ERROR, `Avatar extraction failed: ${err instanceof Error ? err.message : err}`);
+        }
+        // const inRenderer = typeof window !== 'undefined' && typeof document !== 'undefined'
+        // try {
+        //   const req = await fetch(skinUrl)
+        //   if (!req.ok) {
+        //     const errorText = await req.text()
+        //     throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while fetching avatar from skin: HTTP ${req.status} ${errorText}`)
+        //   }
+        //   if (inRenderer) {
+        //     const blob = await req.blob()
+        //     const img = await createImageBitmap(blob)
+        //     const canvas = document.createElement('canvas')
+        //     canvas.width = size
+        //     canvas.height = size
+        //     const ctx = canvas.getContext('2d')!
+        //     ctx.imageSmoothingEnabled = false
+        //     ctx.drawImage(img, 8, 8, 8, 8, 0, 0, size, size)
+        //     ctx.drawImage(img, 40, 8, 8, 8, 0, 0, size, size)
+        //     return canvas.toDataURL('image/png')
+        //   } else {
+        //     let electron
+        //     try {
+        //       electron = await import('electron')
+        //     } catch {
+        //       throw new EMLLibError(
+        //         ErrorType.MODULE_NOT_FOUND,
+        //         '`electron` module is not installed. Please install it with `npm i electron` to use Microsoft authentication.'
+        //       )
+        //     }
+        //     const nativeImage = electron.nativeImage
+        //     const arrayBuffer = await req.arrayBuffer()
+        //     const fullSkin = nativeImage.createFromBuffer(Buffer.from(arrayBuffer))
+        //     const head = fullSkin.crop({ x: 8, y: 8, width: 8, height: 8 })
+        //     const hat = fullSkin.crop({ x: 40, y: 8, width: 8, height: 8 })
+        //     const headBmp = head.toBitmap()
+        //     const hatBmp = hat.toBitmap()
+        //     const base8x8 = Buffer.alloc(8 * 8 * 4)
+        //     for (let i = 0; i < 64; i++) {
+        //       const idx = i * 4
+        //       const hatAlpha = hatBmp[idx + 3]
+        //       if (hatAlpha > 0) {
+        //         const a = hatAlpha / 255
+        //         base8x8[idx + 0] = Math.round(hatBmp[idx + 0] * a + headBmp[idx + 0] * (1 - a))
+        //         base8x8[idx + 1] = Math.round(hatBmp[idx + 1] * a + headBmp[idx + 1] * (1 - a))
+        //         base8x8[idx + 2] = Math.round(hatBmp[idx + 2] * a + headBmp[idx + 2] * (1 - a))
+        //         base8x8[idx + 3] = 255
+        //       } else {
+        //         base8x8[idx + 0] = headBmp[idx + 0]
+        //         base8x8[idx + 1] = headBmp[idx + 1]
+        //         base8x8[idx + 2] = headBmp[idx + 2]
+        //         base8x8[idx + 3] = 255
+        //       }
+        //     }
+        //     const scaledBuffer = Buffer.alloc(size * size * 4)
+        //     for (let y = 0; y < size; y++) {
+        //       const srcY = Math.floor((y / size) * 8)
+        //       for (let x = 0; x < size; x++) {
+        //         const srcX = Math.floor((x / size) * 8)
+        //         const srcIdx = (srcY * 8 + srcX) * 4
+        //         const dstIdx = (y * size + x) * 4
+        //         scaledBuffer[dstIdx + 0] = base8x8[srcIdx + 0]
+        //         scaledBuffer[dstIdx + 1] = base8x8[srcIdx + 1]
+        //         scaledBuffer[dstIdx + 2] = base8x8[srcIdx + 2]
+        //         scaledBuffer[dstIdx + 3] = base8x8[srcIdx + 3]
+        //       }
+        //     }
+        //     const finalAvatar = nativeImage.createFromBitmap(scaledBuffer, { width: size, height: size })
+        //     return finalAvatar.toDataURL()
+        //   }
+        // } catch (err: any) {
+        //   if (err instanceof EMLLibError) throw err
+        //   throw new EMLLibError(ErrorType.FETCH_ERROR, `Error while fetching avatar from skin: ${err.message ?? err}`)
+        // }
+    }
+}
+//# sourceMappingURL=skin.js.map
