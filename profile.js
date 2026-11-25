@@ -127,6 +127,8 @@
     const files = Array.from(stepImageField.files || []);
     const preview = document.getElementById("step-image-preview");
     preview.replaceChildren();
+    app.pendingStepImages = [];
+    app.updateRepairPreview?.();
     if (files.length > 8) {
       stepImageField.value = "";
       app.pendingStepImages = [];
@@ -148,8 +150,10 @@
         addText(item, "span", "", `${document.documentElement.lang.startsWith("en") ? "Step" : "Schritt"} ${index + 1}`);
         item.prepend(image); preview.appendChild(item);
       });
+      app.updateRepairPreview?.();
     } catch (error) {
       stepImageField.value = ""; app.pendingStepImages = [];
+      app.updateRepairPreview?.();
       app.showToast(error.message, "error");
     }
   });

@@ -12,17 +12,18 @@ Die Datenbank wird beim ersten Start als `data/repairly.json` angelegt. Sie wird
 
 ## Funktionen
 
-- Konten erstellen und anmelden; Passwörter werden mit scrypt gehasht.
+- Konten erstellen und anmelden; Passwörter werden mit scrypt gehasht und neue E-Mail-Konten müssen bestätigt werden.
+- Anmeldung über bestätigte Google-, GitHub- oder Discord-Konten.
 - Eine geschützte Sitzung wird in einem HttpOnly-Cookie gehalten.
 - Reparaturanleitungen suchen und veröffentlichen, inklusive Arbeitsschritten und optionalen Teile-Links.
 - Anleitungen einmal pro Mitglied bestätigen; die eigene Anleitung lässt sich nicht bestätigen.
 - Unter Anleitungen kommentieren; Admins können Community-Beiträge als geprüft markieren.
 - Öffentliche Profile mit Kurzbiografie, Profilbild, Banner und allen veröffentlichten Anleitungen.
-- Bis zu acht Bilder direkt an den ersten Arbeitsschritten eines Beitrags.
+- Mindestens ein Bild pro neuem Beitrag; das erste Bild erscheint als Vorschau in der Anzeigeliste. Weitere Bilder erscheinen an den ersten Arbeitsschritten.
 - Anleitungen liken und Benachrichtigungen zu Likes, Kommentaren und Support-Antworten lesen.
 - Support-Tickets im Profil weiterführen; Admins können im Admin-Panel im Nachrichtenverlauf antworten.
 - Support-Tickets optional als private Discord-Threads öffnen. Antworten aus Discord erscheinen im Repairly-Verlauf.
-- Admins können Beiträge im Admin-Panel testen und löschen sowie Nutzer ins Team aufnehmen.
+- Admins können Beiträge im Admin-Panel ansehen, prüfen, testen, erstellen und löschen sowie Nutzer ins Team aufnehmen.
 - Nach dem Veröffentlichen einer Anleitung erscheint eine kurze Konfetti-Animation mit Erfolgston.
 - Wird eine Supportmeldung geschlossen, erhält ihr Absender beim nächsten Öffnen eine Benachrichtigung mit Konfetti und Erfolgston. Bei Gästen gilt dasselbe Gerät und derselbe Browser.
 - Auto oder Motorrad im eigenen Profil speichern; der „Für dich“-Feed sortiert passende Anleitungen nach oben.
@@ -34,7 +35,19 @@ Die Datenbank wird beim ersten Start als `data/repairly.json` angelegt. Sie wird
 
 Das bestehende Hansi-Konto erhält beim Serverstart die Admin-Rolle. Im Wartungsmodus sehen normale Besucher eine Wartungsseite; Admins können Reparaturen und Einstellungen weiter verwalten. Die Online-Liste zählt angemeldete Nutzer, deren offener Tab zuletzt innerhalb von 60 Sekunden ein Lebenszeichen gesendet hat.
 
-Der Server bindet sich standardmäßig an `127.0.0.1`. Für einen Betrieb im Internet braucht es zusätzlich HTTPS, eine geeignete dauerhafte Datenbank sowie Prozesse für E-Mail-Bestätigung und Passwort-Wiederherstellung. Die Beispielanleitungen sind Anschauungsmaterial und keine fahrzeugspezifische Herstellerfreigabe.
+Der Server bindet sich standardmäßig an `127.0.0.1`. Für einen Betrieb im Internet braucht es zusätzlich HTTPS, eine geeignete dauerhafte Datenbank und die unten beschriebene E-Mail-Konfiguration. Die Beispielanleitungen sind Anschauungsmaterial und keine fahrzeugspezifische Herstellerfreigabe.
+
+## E-Mail-Bestätigung und Anmeldung verbinden
+
+Kopiere `.env.example` nach `.env` und trage dort die Zugangsdaten ein. Die Datei wird lokal geladen und ist von Git ausgeschlossen. In der Produktion gehören dieselben Werte in die geheimen Umgebungsvariablen des Hosting-Anbieters.
+
+- `REPAIRLY_PUBLIC_URL` ist die öffentliche Basisadresse, zum Beispiel `https://repairly.example`.
+- `RESEND_API_KEY` und `REPAIRLY_FROM_EMAIL` versenden Bestätigungs-E-Mails über Resend. Die Absenderadresse muss in Resend eingerichtet sein.
+- Für jeden gewünschten Anbieter `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET` oder `DISCORD_CLIENT_ID`/`DISCORD_CLIENT_SECRET` hinterlegen. Nicht eingerichtete Anbieter werden in der Anmeldung ausgeblendet.
+
+Als Callback-Adresse beim Anbieter exakt `https://DEINE-DOMAIN/api/auth/oauth/google/callback`, `https://DEINE-DOMAIN/api/auth/oauth/github/callback` oder `https://DEINE-DOMAIN/api/auth/oauth/discord/callback` eintragen. Die Domain muss mit `REPAIRLY_PUBLIC_URL` übereinstimmen. Bei lokalen OAuth-Tests `http://127.0.0.1:3000` als Basisadresse und dieselbe Callback-Adresse mit `/api/auth/oauth/…/callback` registrieren.
+
+Neue E-Mail/Passwort-Konten können sich erst nach dem Bestätigungslink anmelden. In lokaler Entwicklung wird der Link ohne Resend-Konfiguration im Server-Terminal ausgegeben. Google-, GitHub- und Discord-Anmeldungen werden nur akzeptiert, wenn der jeweilige Anbieter eine bestätigte E-Mail-Adresse meldet. Für Discord-OAuth sind `DISCORD_CLIENT_ID` und `DISCORD_CLIENT_SECRET` nötig; sie sind unabhängig vom Discord-Support-Bot.
 
 ## Discord-Support verbinden
 

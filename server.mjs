@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 
 const scrypt = promisify(scryptCallback);
 const projectRoot = resolve(fileURLToPath(new URL(".", import.meta.url)));
+try { process.loadEnvFile?.(resolve(projectRoot, ".env")); }
+catch (error) { if (error.code !== "ENOENT") throw error; }
 const dataDirectory = resolve(process.env.REPAIRLY_DATA_DIR || resolve(projectRoot, "data"));
 const databasePath = resolve(dataDirectory, "repairly.json");
 const production = process.env.NODE_ENV === "production";
@@ -22,7 +24,15 @@ const publicFiles = new Set(["index.html", "maintenance.html", "styles.css", "sc
 const discordBotToken = process.env.DISCORD_BOT_TOKEN || "";
 const discordSupportChannelId = process.env.DISCORD_SUPPORT_CHANNEL_ID || "";
 const discordEnabled = Boolean(discordBotToken && discordSupportChannelId);
+const resendApiKey = process.env.RESEND_API_KEY || "";
+const verificationFromEmail = process.env.REPAIRLY_FROM_EMAIL || "";
+const oauthProviders = {
+  google: { clientId: process.env.GOOGLE_CLIENT_ID || "", clientSecret: process.env.GOOGLE_CLIENT_SECRET || "" },
+  github: { clientId: process.env.GITHUB_CLIENT_ID || "", clientSecret: process.env.GITHUB_CLIENT_SECRET || "" },
+  discord: { clientId: process.env.DISCORD_CLIENT_ID || "", clientSecret: process.env.DISCORD_CLIENT_SECRET || "" }
+};
 const loginAttempts = new Map();
+const pendingOAuthStates = new Map();
 let database;
 let saveQueue = Promise.resolve();
 let discordSocket = null;
@@ -127,12 +137,15 @@ async function loadDatabase() {
     database = JSON.parse(await readFile(databasePath, "utf8"));
     database.users ||= [];
     database.sessions ||= [];
+    database.emailVerifications ||= [];
     database.repairs ||= [];
     database.reports ||= [];
     database.notifications ||= [];
     database.maintenance ||= { enabled: false, message: "" };
     let migrated = false;
     for (const user of database.users) {
+      if (typeof user.emailVerified !== "boolean") { user.emailVerified = true; migrated = true; }
+      if (!user.authProviders || typeof user.authProviders !== "object") { user.authProviders = {}; migrated = true; }
       if (!Array.isArray(user.vehicles)) { user.vehicles = []; migrated = true; }
       if (typeof user.bio !== "string") { user.bio = ""; migrated = true; }
       if (!Object.hasOwn(user, "avatarData")) { user.avatarData = null; migrated = true; }
@@ -160,7 +173,7 @@ async function loadDatabase() {
     if (migrated) await saveDatabase();
   } catch (error) {
     if (error.code !== "ENOENT") throw error;
-    database = { users: [], sessions: [], repairs: sampleRepairs, reports: [], notifications: [], maintenance: { enabled: false, message: "" } };
+    database = { users: [], sessions: [], emailVerifications: [], repairs: sampleRepairs, reports: [], notifications: [], maintenance: { enabled: false, message: "" } };
     await saveDatabase();
   }
 }
@@ -213,7 +226,7 @@ function isAdmin(user) {
 function publicUser(user) {
   return {
     id: user.id, name: user.name, email: user.email, role: user.role || "user", isOwner: Boolean(user.isOwner),
-    vehicles: user.vehicles || [], bio: user.bio || "", avatarData: user.avatarData || null, bannerData: user.bannerData || null
+    emailVerified: Boolean(user.emailVerified), vehicles: user.vehicles || [], bio: user.bio || "", avatarData: user.avatarData || null, bannerData: user.bannerData || null
   };
 }
 
@@ -233,7 +246,7 @@ function repairView(repair, user) {
 }
 
 function sessionCookie(token) {
-  return `repairly_session=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${sessionDuration / 1000}${production ? "; Secure" : ""}`;
+  return `repairly_session=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${sessionDuration / 1000}${production ? "; Secure" : ""}`;
 }
 
 async function createSession(user) {
@@ -411,10 +424,186 @@ function tooManyAttempts(request, email) {
   return current.count > 7;
 }
 
+function requestBaseUrl(request) {
+  if (process.env.REPAIRLY_PUBLIC_URL) return new URL(process.env.REPAIRLY_PUBLIC_URL).origin;
+  const forwardedProto = String(request.headers["x-forwarded-proto"] || "").split(",")[0].trim();
+  const forwardedHost = String(request.headers["x-forwarded-host"] || "").split(",")[0].trim();
+  const protocol = forwardedProto || (production ? "https" : "http");
+  const requestHost = forwardedHost || request.headers.host || "127.0.0.1:3000";
+  return new URL(`${protocol}://${requestHost}`).origin;
+}
+
+function oauthRedirectUri(request, provider) {
+  return new URL(`/api/auth/oauth/${provider}/callback`, requestBaseUrl(request)).href;
+}
+
+function expireOAuthStateCookie() {
+  return `repairly_oauth_state=; Path=/api/auth; HttpOnly; SameSite=Lax; Max-Age=0${production ? "; Secure" : ""}`;
+}
+
+function redirect(response, location, headers = {}) {
+  response.writeHead(302, { Location: location, "Cache-Control": "no-store", ...headers });
+  response.end();
+}
+
+function verificationLink(request, token) {
+  const link = new URL("/api/auth/verify-email", requestBaseUrl(request));
+  link.searchParams.set("token", token);
+  return link.href;
+}
+
+async function createEmailVerification(user, request) {
+  const token = randomBytes(32).toString("base64url");
+  database.emailVerifications = database.emailVerifications.filter((item) => item.userId !== user.id);
+  database.emailVerifications.push({ userId: user.id, tokenHash: hashToken(token), expiresAt: Date.now() + 24 * 60 * 60 * 1000 });
+  await saveDatabase();
+  const link = verificationLink(request, token);
+  if (!resendApiKey || !verificationFromEmail) {
+    if (production) throw Object.assign(new Error("Die E-Mail-Bestätigung ist noch nicht eingerichtet."), { status: 503, code: "email_service_unavailable" });
+    console.info(`Repairly email verification link for ${user.email}: ${link}`);
+    return;
+  }
+  const result = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from: verificationFromEmail,
+      to: [user.email],
+      subject: "Bestätige deine Repairly-E-Mail-Adresse",
+      html: `<p>Hallo ${user.name.replace(/[&<>"']/g, "").slice(0, 40)},</p><p>bestätige deine E-Mail-Adresse, um dein Repairly-Konto zu aktivieren.</p><p><a href="${link}">E-Mail-Adresse bestätigen</a></p><p>Der Link ist 24 Stunden gültig.</p>`
+    }),
+    signal: AbortSignal.timeout(12_000)
+  });
+  if (!result.ok) {
+    const detail = (await result.text()).slice(0, 250);
+    console.error(`Verification email delivery failed (${result.status}): ${detail}`);
+    throw Object.assign(new Error("Die Bestätigungs-E-Mail konnte gerade nicht gesendet werden. Bitte versuche es erneut."), { status: 502, code: "email_delivery_failed" });
+  }
+}
+
+async function oauthFetchJson(url, options) {
+  const response = await fetch(url, { ...options, signal: AbortSignal.timeout(12_000) });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(`OAuth-Anfrage fehlgeschlagen (${response.status}).`);
+  return payload;
+}
+
+async function oauthProfile(provider, code, request) {
+  const config = oauthProviders[provider];
+  const redirectUri = oauthRedirectUri(request, provider);
+  let accessToken;
+  if (provider === "google") {
+    const token = await oauthFetchJson("https://oauth2.googleapis.com/token", {
+      method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ code, client_id: config.clientId, client_secret: config.clientSecret, redirect_uri: redirectUri, grant_type: "authorization_code" })
+    });
+    accessToken = token.access_token;
+    if (!accessToken) throw new Error("Google hat kein Zugriffstoken zurückgegeben.");
+    const profile = await oauthFetchJson("https://openidconnect.googleapis.com/v1/userinfo", { headers: { Authorization: `Bearer ${accessToken}` } });
+    return { id: String(profile.sub || ""), email: profile.email, emailVerified: profile.email_verified === true, name: profile.name || profile.given_name || "" };
+  }
+  if (provider === "github") {
+    const token = await oauthFetchJson("https://github.com/login/oauth/access_token", {
+      method: "POST", headers: { Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ code, client_id: config.clientId, client_secret: config.clientSecret, redirect_uri: redirectUri })
+    });
+    accessToken = token.access_token;
+    if (!accessToken) throw new Error("GitHub hat kein Zugriffstoken zurückgegeben.");
+    const headers = { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2026-03-10", "User-Agent": "Repairly" };
+    const [profile, emails] = await Promise.all([
+      oauthFetchJson("https://api.github.com/user", { headers }),
+      oauthFetchJson("https://api.github.com/user/emails", { headers })
+    ]);
+    const email = Array.isArray(emails) ? emails.find((item) => item.primary && item.verified) || emails.find((item) => item.verified) : null;
+    return { id: String(profile.id || ""), email: email?.email || profile.email, emailVerified: Boolean(email?.verified), name: profile.name || profile.login || "" };
+  }
+  const token = await oauthFetchJson("https://discord.com/api/oauth2/token", {
+    method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ code, client_id: config.clientId, client_secret: config.clientSecret, redirect_uri: redirectUri, grant_type: "authorization_code" })
+  });
+  accessToken = token.access_token;
+  if (!accessToken) throw new Error("Discord hat kein Zugriffstoken zurückgegeben.");
+  const profile = await oauthFetchJson("https://discord.com/api/users/@me", { headers: { Authorization: `Bearer ${accessToken}` } });
+  return { id: String(profile.id || ""), email: profile.email, emailVerified: profile.verified === true, name: profile.global_name || profile.username || "" };
+}
+
+async function findOrCreateOAuthUser(provider, profile) {
+  const email = typeof profile.email === "string" ? profile.email.trim().toLowerCase() : "";
+  const providerId = String(profile.id || "");
+  if (!providerId || !profile.emailVerified || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw Object.assign(new Error("Der Anbieter hat keine bestätigte E-Mail-Adresse geliefert."), { status: 400, code: "verified_email_required" });
+  }
+  let account = database.users.find((item) => item.authProviders?.[provider] === providerId) || database.users.find((item) => item.email === email);
+  if (!account) {
+    const fallbackName = email.split("@")[0];
+    const name = String(profile.name || fallbackName).trim().replace(/[\r\n\t]/g, " ").slice(0, 40) || fallbackName.slice(0, 40);
+    account = { id: randomUUID(), name, email, emailVerified: true, authProviders: {}, role: "user", vehicles: [], createdAt: new Date().toISOString() };
+    database.users.push(account);
+  }
+  account.authProviders ||= {};
+  account.authProviders[provider] = providerId;
+  account.emailVerified = true;
+  await saveDatabase();
+  return account;
+}
+
 async function handleApi(request, response, url) {
   const user = getCurrentUser(request);
   if (request.method === "GET" && url.pathname === "/api/status") {
     return json(response, 200, { maintenance: database.maintenance, isAdmin: isAdmin(user) });
+  }
+  if (request.method === "GET" && url.pathname === "/api/auth/providers") {
+    return json(response, 200, { providers: Object.entries(oauthProviders).filter(([, config]) => config.clientId && config.clientSecret).map(([name]) => name) });
+  }
+  const oauthRoute = url.pathname.match(/^\/api\/auth\/oauth\/(google|github|discord)(\/callback)?$/);
+  if (request.method === "GET" && oauthRoute) {
+    const provider = oauthRoute[1];
+    const isCallback = Boolean(oauthRoute[2]);
+    const config = oauthProviders[provider];
+    if (!config.clientId || !config.clientSecret) return redirect(response, "/?oauth=unavailable");
+    if (!isCallback) {
+      for (const [key, value] of pendingOAuthStates) if (value.expiresAt <= Date.now()) pendingOAuthStates.delete(key);
+      const state = randomBytes(32).toString("base64url");
+      pendingOAuthStates.set(state, { provider, expiresAt: Date.now() + 10 * 60 * 1000 });
+      const authorizeUrl = provider === "google" ? "https://accounts.google.com/o/oauth2/v2/auth" : provider === "github" ? "https://github.com/login/oauth/authorize" : "https://discord.com/oauth2/authorize";
+      const params = new URLSearchParams({ client_id: config.clientId, redirect_uri: oauthRedirectUri(request, provider), response_type: "code", state });
+      params.set("scope", provider === "google" ? "openid email profile" : provider === "github" ? "read:user user:email" : "identify email");
+      if (provider === "google") params.set("prompt", "select_account");
+      if (provider === "discord") params.set("prompt", "consent");
+      const stateCookie = `repairly_oauth_state=${encodeURIComponent(state)}; Path=/api/auth; HttpOnly; SameSite=Lax; Max-Age=600${production ? "; Secure" : ""}`;
+      return redirect(response, `${authorizeUrl}?${params}`, { "Set-Cookie": stateCookie });
+    }
+    const state = url.searchParams.get("state") || "";
+    const cookieState = readCookie(request, "repairly_oauth_state");
+    const pending = pendingOAuthStates.get(state);
+    if (!state || state !== cookieState || !pending || pending.provider !== provider || pending.expiresAt <= Date.now()) {
+      if (state) pendingOAuthStates.delete(state);
+      return redirect(response, "/?oauth=failed", { "Set-Cookie": expireOAuthStateCookie() });
+    }
+    pendingOAuthStates.delete(state);
+    if (url.searchParams.has("error") || !url.searchParams.get("code")) {
+      return redirect(response, "/?oauth=cancelled", { "Set-Cookie": expireOAuthStateCookie() });
+    }
+    try {
+      const profile = await oauthProfile(provider, url.searchParams.get("code"), request);
+      const account = await findOrCreateOAuthUser(provider, profile);
+      const sessionToken = await createSession(account);
+      return redirect(response, "/?oauth=success", { "Set-Cookie": [sessionCookie(sessionToken), expireOAuthStateCookie()] });
+    } catch (error) {
+      console.error(`${provider} sign-in failed:`, error.message || error);
+      const failure = error.code === "verified_email_required" ? "unverified-email" : "failed";
+      return redirect(response, `/?oauth=${failure}`, { "Set-Cookie": expireOAuthStateCookie() });
+    }
+  }
+  if (request.method === "GET" && url.pathname === "/api/auth/verify-email") {
+    const token = url.searchParams.get("token") || "";
+    const record = database.emailVerifications.find((item) => item.tokenHash === hashToken(token) && item.expiresAt > Date.now());
+    const account = record && database.users.find((item) => item.id === record.userId);
+    if (!account) return redirect(response, "/?email-verification=expired");
+    account.emailVerified = true;
+    database.emailVerifications = database.emailVerifications.filter((item) => item !== record);
+    const sessionToken = await createSession(account);
+    return redirect(response, "/?email-verified=1", { "Set-Cookie": sessionCookie(sessionToken) });
   }
   if (database.maintenance.enabled && !isAdmin(user)) {
     return apiError(response, 503, "maintenance", database.maintenance.message || "Repairly ist gerade kurz in Wartung. Bitte schau später wieder vorbei.");
@@ -499,23 +688,39 @@ async function handleApi(request, response, url) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return apiError(response, 400, "invalid_input", "Bitte gib eine gültige E-Mail-Adresse ein.");
     if (password.length < 10 || password.length > 128) return apiError(response, 400, "invalid_input", "Das Passwort muss 10 bis 128 Zeichen lang sein.");
     if (database.users.some((item) => item.email === email)) return apiError(response, 409, "email_in_use", "Für diese E-Mail-Adresse gibt es bereits ein Konto.");
+    if (production && (!resendApiKey || !verificationFromEmail)) return apiError(response, 503, "email_service_unavailable", "Die E-Mail-Bestätigung ist noch nicht eingerichtet.");
     const salt = randomBytes(16).toString("hex");
     const derivedHash = await passwordHash(password, salt);
     if (database.users.some((item) => item.email === email)) return apiError(response, 409, "email_in_use", "Für diese E-Mail-Adresse gibt es bereits ein Konto.");
-    const userRecord = { id: randomUUID(), name, email, salt, passwordHash: derivedHash, role: "user", vehicles: [], createdAt: new Date().toISOString() };
+    const userRecord = { id: randomUUID(), name, email, salt, passwordHash: derivedHash, emailVerified: false, authProviders: {}, role: "user", vehicles: [], createdAt: new Date().toISOString() };
     database.users.push(userRecord);
-    const token = await createSession(userRecord);
-    return json(response, 201, { user: publicUser(userRecord) }, { "Set-Cookie": sessionCookie(token) });
+    try { await createEmailVerification(userRecord, request); }
+    catch (error) { return apiError(response, error.status || 502, error.code || "email_delivery_failed", error.message || "Die Bestätigungs-E-Mail konnte nicht gesendet werden."); }
+    return json(response, 201, { verificationRequired: true });
+  }
+
+  if (url.pathname === "/api/auth/resend-verification") {
+    if (production && (!resendApiKey || !verificationFromEmail)) return apiError(response, 503, "email_service_unavailable", "Die E-Mail-Bestätigung ist noch nicht eingerichtet.");
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    if (email && !tooManyAttempts(request, `verify:${email}`)) {
+      const account = database.users.find((item) => item.email === email && !item.emailVerified);
+      if (account) {
+        try { await createEmailVerification(account, request); }
+        catch (error) { console.error("Verification resend failed:", error.message || error); }
+      }
+    }
+    return json(response, 200, { sent: true });
   }
 
   if (url.pathname === "/api/auth/login") {
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
     if (tooManyAttempts(request, email)) return apiError(response, 429, "rate_limited", "Zu viele Versuche. Bitte warte kurz.");
     const userRecord = database.users.find((item) => item.email === email);
-    if (!userRecord || typeof body.password !== "string") return apiError(response, 401, "invalid_credentials", "E-Mail-Adresse oder Passwort stimmen nicht.");
+    if (!userRecord || typeof body.password !== "string" || !userRecord.salt || !userRecord.passwordHash) return apiError(response, 401, "invalid_credentials", "E-Mail-Adresse oder Passwort stimmen nicht.");
     const submitted = Buffer.from(await passwordHash(body.password, userRecord.salt), "hex");
     const saved = Buffer.from(userRecord.passwordHash, "hex");
     if (submitted.length !== saved.length || !timingSafeEqual(submitted, saved)) return apiError(response, 401, "invalid_credentials", "E-Mail-Adresse oder Passwort stimmen nicht.");
+    if (!userRecord.emailVerified) return apiError(response, 403, "email_not_verified", "Bitte bestätige zuerst deine E-Mail-Adresse. Du kannst dir den Bestätigungslink erneut senden lassen.");
     loginAttempts.delete(rateLimitKey(request, email));
     const token = await createSession(userRecord);
     return json(response, 200, { user: publicUser(userRecord) }, { "Set-Cookie": sessionCookie(token) });
@@ -707,7 +912,7 @@ async function handleApi(request, response, url) {
       database.sessions = database.sessions.filter((item) => item.tokenHash !== hashToken(token));
       await saveDatabase();
     }
-    return json(response, 200, { user: null }, { "Set-Cookie": "repairly_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0" });
+    return json(response, 200, { user: null }, { "Set-Cookie": `repairly_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${production ? "; Secure" : ""}` });
   }
 
   if (url.pathname === "/api/vehicles") {
@@ -756,6 +961,7 @@ async function handleApi(request, response, url) {
       return apiError(response, 400, "invalid_input", "Du kannst Bilder für höchstens acht Arbeitsschritte hinzufügen.");
     }
     const stepImages = (body.stepImages || []).map((image, index) => image ? normalizeImageData(image, 180 * 1024, `Schrittbild ${index + 1}`) : null);
+    if (!stepImages.some(Boolean)) return apiError(response, 400, "image_required", "Bitte füge mindestens ein Bild hinzu, bevor du die Anleitung veröffentlichst.");
     const repair = {
       id: randomUUID(), authorId: user.id, authorName: user.name, vehicleId: linkedVehicle?.id || null, title, vehicle, category, difficulty, summary,
       steps, stepImages, parts, confirmationsBy: [], comments: [], likesBy: [], adminVerified: false, adminVerifiedBy: null, adminVerifiedAt: null, createdAt: new Date().toISOString(), isSample: false

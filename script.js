@@ -5,7 +5,7 @@ const translations = {
     adminPosts: "Beiträge", adminPostsTitle: "Beiträge verwalten", adminPostsIntro: "Prüfe Inhalte, teste Pflichtangaben oder entferne Beiträge.", adminNoPosts: "Noch keine Community-Beiträge.", adminTestPost: "Beitrag testen", adminTestPassed: "Datencheck bestanden.", adminTestFailed: "Datencheck fehlgeschlagen:", adminTestTitle: "Titel", adminTestVehicle: "Fahrzeugangabe", adminTestSummary: "Kurzbeschreibung", adminTestSteps: "Mindestens zwei Arbeitsschritte", adminTestParts: "Teile-Links", adminDeletePost: "Beitrag löschen", adminDeleteConfirm: "Diesen Community-Beitrag wirklich dauerhaft löschen?", adminPostDeleted: "Beitrag wurde gelöscht.",
     commentsTitle: "Kommentare", commentPlaceholder: "Schreibe einen hilfreichen Kommentar …", postComment: "Kommentieren", commentSent: "Kommentar hinzugefügt.", noComments: "Noch keine Kommentare.", loginToComment: "Melde dich an, um zu kommentieren.", adminVerifyGuide: "Als geprüft markieren", adminUnverifyGuide: "Prüfung zurücknehmen", adminVerifiedBadge: "ADMIN-GEPRÜFT", adminVerificationSaved: "Admin-Prüfung aktualisiert.",
     promoNav: "Werbevideo", promoKicker: "REPAIRLY IN 24 SEKUNDEN", promoTitle: "Wissen teilen. Weiterkommen.", promoIntro: "Dein Auto oder Motorrad, passende Anleitungen und eine Community, die voneinander lernt.", promoPause: "Pause", promoPlay: "Abspielen", promoRestart: "Neu starten", promoDownload: "Video speichern", promoExporting: "Video wird aufgenommen …", promoSaved: "WebM-Video wurde gespeichert.", promoUnsupported: "Videoexport wird in diesem Browser nicht unterstützt.", promoCanvasLabel: "Low-Poly-Werbeclip für Repairly", promoCta: "Anleitungen entdecken",
-    profileSettingsTitle: "Dein öffentliches Profil", profileBioLabel: "Über mich", profileBioPlaceholder: "Erzähl der Community etwas über dich.", profileAvatarLabel: "Profilbild", profileBannerLabel: "Bannerbild", removeAvatar: "Profilbild entfernen", removeBanner: "Banner entfernen", saveProfile: "Profil speichern", profileSaved: "Dein Profil wurde gespeichert.", mySupportTitle: "Meine Supportanfragen", noMySupport: "Du hast noch keine Supportanfragen.", supportReplyPlaceholder: "Antworte dem Repairly-Team …", supportReplySend: "Antwort senden", supportReplySaved: "Deine Antwort wurde gesendet.", supportStatusOpen: "Offen", supportStatusClosed: "Geschlossen", supportFromYou: "Du", supportFromTeam: "Repairly-Team", supportUnavailable: "Anfrage konnte nicht geladen werden.", stepImagesLabel: "Bilder zu den Arbeitsschritten", stepImagesHint: "Bis zu acht Bilder. Die Reihenfolge entspricht den ersten Arbeitsschritten.", stepImageLimit: "Wähle höchstens acht Bilder.", stepImagesForSteps: "Wähle nicht mehr Bilder als beschriebene Arbeitsschritte.",
+    profileSettingsTitle: "Dein öffentliches Profil", profileBioLabel: "Über mich", profileBioPlaceholder: "Erzähl der Community etwas über dich.", profileAvatarLabel: "Profilbild", profileBannerLabel: "Bannerbild", removeAvatar: "Profilbild entfernen", removeBanner: "Banner entfernen", saveProfile: "Profil speichern", profileSaved: "Dein Profil wurde gespeichert.", mySupportTitle: "Meine Supportanfragen", noMySupport: "Du hast noch keine Supportanfragen.", supportReplyPlaceholder: "Antworte dem Repairly-Team …", supportReplySend: "Antwort senden", supportReplySaved: "Deine Antwort wurde gesendet.", supportStatusOpen: "Offen", supportStatusClosed: "Geschlossen", supportFromYou: "Du", supportFromTeam: "Repairly-Team", supportUnavailable: "Anfrage konnte nicht geladen werden.", stepImagesLabel: "Titelbild für die Anzeige (Pflicht)", stepImagesHint: "Mindestens ein Bild ist nötig. Das erste erscheint direkt in der Anzeige; weitere Bilder ergänzen die ersten Arbeitsschritte.", stepImageLimit: "Wähle höchstens acht Bilder.", stepImagesForSteps: "Wähle nicht mehr Bilder als beschriebene Arbeitsschritte.",
     notificationsTitle: "Benachrichtigungen", notificationKicker: "DEIN REPAIRLY", markAllRead: "Alle gelesen", noNotifications: "Du bist auf dem neuesten Stand.", notificationLiked: "hat deine Anleitung gelikt.", notificationCommented: "hat deine Anleitung kommentiert.", notificationSupportReply: "hat auf deine Supportanfrage geantwortet.", notificationSupportClosed: "hat deine Supportanfrage geschlossen.", notificationsLoadError: "Benachrichtigungen konnten nicht geladen werden.",
     publicProfileKicker: "COMMUNITY-PROFIL", profileGuidesTitle: "Anleitungen dieser Person", noProfileGuides: "Diese Person hat noch keine Anleitungen veröffentlicht.", likeGuide: "Anleitung liken", unlikeGuide: "Like entfernen", likes: "Likes", discordTicketsTitle: "Discord-Tickets", discordTicketsSetup: "Private Ticket-Threads erscheinen hier nach der Serverkonfiguration.", discordTicketsOnline: "Discord-Bot verbunden. Neue Supportfälle werden als private Threads angelegt.", discordTicketsOffline: "Bot konfiguriert, Verbindung zu Discord wird hergestellt.", discordTicketsMissing: "Discord ist noch nicht verbunden. DISCORD_BOT_TOKEN und DISCORD_SUPPORT_CHANNEL_ID fehlen.", discordTicketPending: "Discord-Ticket wird erstellt …", discordTicketFailed: "Discord-Ticket konnte nicht synchronisiert werden.",
     pageTitle: "Repairly. — Reparaturwissen für Auto und Motorrad",
@@ -24,7 +24,7 @@ const translations = {
     difficultyEasy: "Einfach", difficultyMedium: "Mittel", difficultyAdvanced: "Anspruchsvoll", summaryLabel: "Kurzbeschreibung", summaryPlaceholder: "Was wird repariert und worauf sollte man achten?", summaryHint: "Ein kurzer Überblick hilft anderen einzuschätzen, ob die Anleitung passt.",
     stepsHeading: "Schritt für Schritt", stepsIntro: "Eine klare Reihenfolge macht den Nachbau leichter.", stepsLabel: "Arbeitsschritte (je eine Zeile)", stepsPlaceholder: "Werkzeug und Vorbereitung\nSchritte in der richtigen Reihenfolge\nErgebnis prüfen", stepsHint: "Jede Zeile wird als eigener Schritt angezeigt. Mindestens zwei Schritte.",
     partsHeading: "Verwendete Teile", partsIntro: "Optional: Verlinke passende Ersatzteile.", partsLabel: "Teile-Links (optional, je eine URL pro Zeile)", partsPlaceholder: "https://shop.example/ersatzteil", partsHint: "Nur http- und https-Links sind erlaubt.",
-    previewKicker: "LIVE-VORSCHAU", previewHeading: "So sehen andere deinen Beitrag", previewTitlePlaceholder: "Deine Anleitung", previewVehiclePlaceholder: "Dein Fahrzeug", previewSummaryPlaceholder: "Deine kurze Beschreibung erscheint hier.", checklistHeading: "Vor dem Veröffentlichen", checkTitle: "Aussagekräftiger Titel", checkVehicle: "Fahrzeug eindeutig benannt", checkSteps: "Mindestens zwei Arbeitsschritte", editorSafety: "Sicherheitskritische Arbeiten wie Bremsen oder Airbags gehören in Fachhände. Prüfe die Herstellerangaben für dein Fahrzeug.", cancel: "Abbrechen",
+    previewKicker: "LIVE-VORSCHAU", previewHeading: "So sehen andere deinen Beitrag", previewTitlePlaceholder: "Deine Anleitung", previewVehiclePlaceholder: "Dein Fahrzeug", previewSummaryPlaceholder: "Deine kurze Beschreibung erscheint hier.", checklistHeading: "Vor dem Veröffentlichen", checkTitle: "Aussagekräftiger Titel", checkVehicle: "Fahrzeug eindeutig benannt", checkSteps: "Mindestens zwei Arbeitsschritte", checkPhoto: "Mindestens ein Bild hinzugefügt", editorSafety: "Sicherheitskritische Arbeiten wie Bremsen oder Airbags gehören in Fachhände. Prüfe die Herstellerangaben für dein Fahrzeug.", cancel: "Abbrechen",
     publishRepair: "Anleitung veröffentlichen",
     eyebrow: "DIE COMMUNITY FÜR FAHRZEUGREPARATUREN", heroTitle: "Reparaturwissen für Auto und Motorrad.",
     heroCopy: "Finde Reparaturanleitungen für Autos und Motorräder, teile deine eigenen Reparaturen mit Ersatzteil-Links und lass erfolgreiche Lösungen von der Community bestätigen.",
@@ -45,7 +45,9 @@ const translations = {
     aboutCopy: "Teile deine Reparatur-Erfahrungen und probiere Anleitungen anderer aus. Nach erfolgreicher Reparatur kannst du den Beitrag bestätigen. Sobald zehn verschiedene Personen den Erfolg bestätigt haben, erhält er das Abzeichen „Community-verifiziert“.",
     proofStampOne: "10×", proofStampTwo: "ERFOLGREICH", proofStampThree: "BESTÄTIGT", backToTop: "Zurück nach oben",
     footerLine: "Reparaturen gemeinsam dokumentieren und nachvollziehbar bestätigen.",
-    loginSuccess: "Du bist jetzt angemeldet.", registerSuccess: "Konto erstellt. Du bist jetzt angemeldet.", repairSuccess: "Deine Anleitung wurde veröffentlicht.", verifySuccess: "Danke! Deine Bestätigung wurde gespeichert.",
+    loginSuccess: "Du bist jetzt angemeldet.", registerSuccess: "Bestätigungslink gesendet. Öffne deine E-Mail, um dein Konto zu aktivieren.", repairSuccess: "Deine Anleitung wurde veröffentlicht.", verifySuccess: "Danke! Deine Bestätigung wurde gespeichert.",
+    emailVerificationSent: "Wir haben dir einen Bestätigungslink geschickt. Öffne deine E-Mail, um dein Konto zu aktivieren.", emailVerified: "Deine E-Mail-Adresse ist bestätigt. Du bist angemeldet.", emailVerificationExpired: "Der Bestätigungslink ist abgelaufen. Fordere einen neuen Link an.", emailNotVerified: "Bitte bestätige zuerst deine E-Mail-Adresse. Du kannst dir den Link erneut senden lassen.", emailServiceUnavailable: "Der E-Mail-Versand ist noch nicht eingerichtet.", resendVerification: "Bestätigungslink erneut senden", verificationResent: "Falls ein offenes Konto zu dieser Adresse gehört, ist ein neuer Link unterwegs.",
+    oauthDivider: "Oder anmelden mit", oauthUnavailable: "Diese Anmeldung ist noch nicht eingerichtet.", oauthCancelled: "Anmeldung abgebrochen.", oauthFailed: "Anmeldung fehlgeschlagen. Bitte versuche es erneut.", oauthUnverifiedEmail: "Der Anbieter hat keine bestätigte E-Mail-Adresse geliefert.", oauthSuccess: "Du bist jetzt angemeldet.", passwordShow: "Zeigen", passwordHide: "Verbergen", authSigningIn: "Du wirst angemeldet …", authCreatingAccount: "Konto wird erstellt …", adminCreatePost: "Beitrag erstellen", adminViewPost: "Beitrag ansehen", adminMissingPhoto: "Pflichtbild fehlt", imageRequired: "Füge mindestens ein Bild hinzu. Das erste Bild wird als Vorschaubild angezeigt.",
     forYou: "Für dich", myGarage: "Meine Garage", allGuides: "Alle Anleitungen", feedLabel: "Anleitungen anzeigen",
     dashboardKicker: "DEIN REPAIRLY", hello: "Hallo", dashboardDescription: "Finde neue Reparaturen, die zu deinen Fahrzeugen passen.", dashboardWithVehicles: "Neue Anleitungen für {vehicles} und mehr.", dashboardNoVehicles: "Trage dein Auto oder Motorrad ein – dann sortiert Repairly passende Anleitungen nach oben.", manageGarage: "Garage verwalten", forVehicle: "Passt zu deinem Fahrzeug",
     vehicleFromGarageLabel: "Fahrzeug aus deiner Garage (optional)", manualVehicle: "Fahrzeug manuell eintragen", garageKicker: "DEINE FAHRZEUGE", garageTitle: "Profil & Garage", garageIntro: "Füge Auto oder Motorrad hinzu. Repairly nutzt deine Fahrzeuge für passende Empfehlungen.",
@@ -69,7 +71,7 @@ const translations = {
     adminPosts: "Posts", adminPostsTitle: "Manage posts", adminPostsIntro: "Review content, test required fields, or remove posts.", adminNoPosts: "No community posts yet.", adminTestPost: "Test post", adminTestPassed: "Data check passed.", adminTestFailed: "Data check failed:", adminTestTitle: "Title", adminTestVehicle: "Vehicle details", adminTestSummary: "Summary", adminTestSteps: "At least two repair steps", adminTestParts: "Parts links", adminDeletePost: "Delete post", adminDeleteConfirm: "Permanently delete this community post?", adminPostDeleted: "Post deleted.",
     commentsTitle: "Comments", commentPlaceholder: "Write a helpful comment …", postComment: "Post comment", commentSent: "Comment added.", noComments: "No comments yet.", loginToComment: "Log in to leave a comment.", adminVerifyGuide: "Mark as reviewed", adminUnverifyGuide: "Remove review", adminVerifiedBadge: "ADMIN REVIEWED", adminVerificationSaved: "Admin review updated.",
     promoNav: "Promo video", promoKicker: "REPAIRLY IN 24 SECONDS", promoTitle: "Share know-how. Move forward.", promoIntro: "Your car or motorcycle, guides that fit, and a community learning together.", promoPause: "Pause", promoPlay: "Play", promoRestart: "Restart", promoDownload: "Save video", promoExporting: "Recording video …", promoSaved: "WebM video saved.", promoUnsupported: "Video export is not supported in this browser.", promoCanvasLabel: "Low-poly animated Repairly advert", promoCta: "Explore repair guides",
-    profileSettingsTitle: "Your public profile", profileBioLabel: "About me", profileBioPlaceholder: "Tell the community a little about yourself.", profileAvatarLabel: "Profile picture", profileBannerLabel: "Banner image", removeAvatar: "Remove profile picture", removeBanner: "Remove banner", saveProfile: "Save profile", profileSaved: "Your profile has been saved.", mySupportTitle: "My support requests", noMySupport: "You have no support requests yet.", supportReplyPlaceholder: "Reply to the Repairly team …", supportReplySend: "Send reply", supportReplySaved: "Your reply has been sent.", supportStatusOpen: "Open", supportStatusClosed: "Closed", supportFromYou: "You", supportFromTeam: "Repairly team", supportUnavailable: "Could not load support requests.", stepImagesLabel: "Photos for repair steps", stepImagesHint: "Up to eight photos. Their order matches the first repair steps.", stepImageLimit: "Choose no more than eight images.", stepImagesForSteps: "Choose no more photos than the number of repair steps.",
+    profileSettingsTitle: "Your public profile", profileBioLabel: "About me", profileBioPlaceholder: "Tell the community a little about yourself.", profileAvatarLabel: "Profile picture", profileBannerLabel: "Banner image", removeAvatar: "Remove profile picture", removeBanner: "Remove banner", saveProfile: "Save profile", profileSaved: "Your profile has been saved.", mySupportTitle: "My support requests", noMySupport: "You have no support requests yet.", supportReplyPlaceholder: "Reply to the Repairly team …", supportReplySend: "Send reply", supportReplySaved: "Your reply has been sent.", supportStatusOpen: "Open", supportStatusClosed: "Closed", supportFromYou: "You", supportFromTeam: "Repairly team", supportUnavailable: "Could not load support requests.", stepImagesLabel: "Cover photo for the post (required)", stepImagesHint: "At least one photo is required. The first appears on the post; extra photos illustrate the first repair steps.", stepImageLimit: "Choose no more than eight images.", stepImagesForSteps: "Choose no more photos than the number of repair steps.",
     notificationsTitle: "Notifications", notificationKicker: "YOUR REPAIRLY", markAllRead: "Mark all read", noNotifications: "You are all caught up.", notificationLiked: "liked your repair guide.", notificationCommented: "commented on your repair guide.", notificationSupportReply: "replied to your support request.", notificationSupportClosed: "closed your support request.", notificationsLoadError: "Could not load notifications.",
     publicProfileKicker: "COMMUNITY PROFILE", profileGuidesTitle: "Guides by this member", noProfileGuides: "This member has not published any repair guides yet.", likeGuide: "Like this guide", unlikeGuide: "Remove like", likes: "Likes", discordTicketsTitle: "Discord tickets", discordTicketsSetup: "Private ticket threads appear here after server setup.", discordTicketsOnline: "Discord bot connected. New support cases are sent to private threads.", discordTicketsOffline: "Bot configured; connecting to Discord.", discordTicketsMissing: "Discord is not connected yet. DISCORD_BOT_TOKEN and DISCORD_SUPPORT_CHANNEL_ID are missing.", discordTicketPending: "Creating Discord ticket …", discordTicketFailed: "Could not sync this Discord ticket.",
     pageTitle: "Repairly. — Repair knowledge for cars and motorcycles",
@@ -86,7 +88,7 @@ const translations = {
     difficultyEasy: "Easy", difficultyMedium: "Medium", difficultyAdvanced: "Advanced", summaryLabel: "Short description", summaryPlaceholder: "What are you repairing, and what should people know?", summaryHint: "A short overview helps people decide whether this guide fits their vehicle.",
     stepsHeading: "Step by step", stepsIntro: "A clear sequence makes the repair easier to follow.", stepsLabel: "Repair steps (one per line)", stepsPlaceholder: "Tools and preparation\nSteps in the correct order\nCheck the result", stepsHint: "Each line becomes a separate step. Include at least two steps.",
     partsHeading: "Parts used", partsIntro: "Optional: link the spare parts you used.", partsLabel: "Parts links (optional, one URL per line)", partsPlaceholder: "https://shop.example/part", partsHint: "Only http and https links are accepted.",
-    previewKicker: "LIVE PREVIEW", previewHeading: "How others will see your guide", previewTitlePlaceholder: "Your repair guide", previewVehiclePlaceholder: "Your vehicle", previewSummaryPlaceholder: "Your short description will appear here.", checklistHeading: "Before you publish", checkTitle: "A clear repair title", checkVehicle: "Vehicle is identified", checkSteps: "At least two repair steps", editorSafety: "Safety critical work such as brakes or airbags should be left to qualified professionals. Check your vehicle manufacturer’s instructions.", cancel: "Cancel", publishRepair: "Publish guide",
+    previewKicker: "LIVE PREVIEW", previewHeading: "How others will see your guide", previewTitlePlaceholder: "Your repair guide", previewVehiclePlaceholder: "Your vehicle", previewSummaryPlaceholder: "Your short description will appear here.", checklistHeading: "Before you publish", checkTitle: "A clear repair title", checkVehicle: "Vehicle is identified", checkSteps: "At least two repair steps", checkPhoto: "At least one photo added", editorSafety: "Safety critical work such as brakes or airbags should be left to qualified professionals. Check your vehicle manufacturer’s instructions.", cancel: "Cancel", publishRepair: "Publish guide",
     eyebrow: "THE VEHICLE REPAIR COMMUNITY", heroTitle: "Repair know-how for cars and motorcycles.",
     heroCopy: "Find repair guides for cars and motorcycles, share your own repairs with spare-part links, and let the community confirm successful fixes.",
     heroCta: "Explore repair guides", heroLink: "Community verification", liveTag: "COMMUNITY · REPAIR KNOW-HOW",
@@ -106,7 +108,9 @@ const translations = {
     aboutCopy: "Share your repair experience or try community guides. After a successful repair, confirm the post. When ten different people confirm it worked for them, it receives a community verified badge.",
     proofStampOne: "10×", proofStampTwo: "SUCCESSFUL", proofStampThree: "CONFIRMED", backToTop: "Back to top",
     footerLine: "Document repairs together and confirm what worked.",
-    loginSuccess: "You are now logged in.", registerSuccess: "Account created. You are now logged in.", repairSuccess: "Your guide has been published.", verifySuccess: "Thanks! Your confirmation has been saved.",
+    loginSuccess: "You are now logged in.", registerSuccess: "Verification link sent. Check your email to activate your account.", repairSuccess: "Your guide has been published.", verifySuccess: "Thanks! Your confirmation has been saved.",
+    emailVerificationSent: "We sent a verification link. Check your email to activate your account.", emailVerified: "Your email is verified. You are signed in.", emailVerificationExpired: "That verification link has expired. Request a new one.", emailNotVerified: "Please verify your email address first. You can request another link.", emailServiceUnavailable: "Email delivery is not configured yet.", resendVerification: "Resend verification link", verificationResent: "If an unverified account uses that address, a new link is on its way.",
+    oauthDivider: "Or continue with", oauthUnavailable: "This sign-in option is not configured yet.", oauthCancelled: "Sign-in cancelled.", oauthFailed: "Sign-in failed. Please try again.", oauthUnverifiedEmail: "The provider did not return a verified email address.", oauthSuccess: "You are now signed in.", passwordShow: "Show", passwordHide: "Hide", authSigningIn: "Signing you in …", authCreatingAccount: "Creating your account …", adminCreatePost: "Create a post", adminViewPost: "View post", adminMissingPhoto: "Required image missing", imageRequired: "Add at least one image. The first image appears as the post preview.",
     forYou: "For you", myGarage: "My garage", allGuides: "All guides", feedLabel: "Choose a guide feed",
     dashboardKicker: "YOUR REPAIRLY", hello: "Hi", dashboardDescription: "Find fresh repair guides that fit your vehicles.", dashboardWithVehicles: "New guides for {vehicles} and more.", dashboardNoVehicles: "Add your car or motorcycle and Repairly will rank matching guides first.", manageGarage: "Manage garage", forVehicle: "Matches your vehicle",
     vehicleFromGarageLabel: "Choose from your garage (optional)", manualVehicle: "Enter a vehicle manually", garageKicker: "YOUR VEHICLES", garageTitle: "Profile & garage", garageIntro: "Add your car or motorcycle. Repairly uses your vehicles to personalize recommendations.",
@@ -215,7 +219,13 @@ function setAuthMode(mode) {
     form.hidden = form.dataset.authForm !== mode;
     form.querySelector(".form-message").textContent = "";
     form.querySelector(".form-message").className = "form-message";
+    form.querySelectorAll("[data-password-toggle]").forEach(function (button) {
+      button.closest(".password-input-wrap").querySelector("input").type = "password";
+      button.setAttribute("aria-pressed", "false");
+      button.textContent = words().passwordShow;
+    });
   });
+  document.getElementById("resend-verification").hidden = true;
   document.getElementById("account-dialog-title").textContent = register ? words().registerModeTitle : words().loginModeTitle;
   document.getElementById("account-dialog-intro").textContent = register ? words().registerModeIntro : words().loginModeIntro;
 }
@@ -225,6 +235,42 @@ function refreshAuthModeCopy() {
 }
 document.querySelectorAll("[data-auth-mode]").forEach(function (button) {
   button.addEventListener("click", function () { setAuthMode(button.dataset.authMode); });
+});
+document.querySelectorAll("[data-password-toggle]").forEach(function (button) {
+  button.addEventListener("click", function () {
+    const input = button.closest(".password-input-wrap").querySelector("input");
+    const visible = input.type === "password";
+    input.type = visible ? "text" : "password";
+    button.setAttribute("aria-pressed", String(visible));
+    button.textContent = visible ? words().passwordHide : words().passwordShow;
+  });
+});
+
+async function loadAuthProviders() {
+  const group = document.getElementById("oauth-providers");
+  try {
+    const result = await api("/api/auth/providers");
+    const configured = new Set(result.providers || []);
+    group.querySelectorAll("[data-oauth-provider]").forEach(function (link) { link.hidden = !configured.has(link.dataset.oauthProvider); });
+    group.hidden = configured.size === 0;
+  } catch { group.hidden = true; }
+}
+
+document.getElementById("resend-verification").addEventListener("click", async function () {
+  const form = document.getElementById("login-form");
+  const email = form.elements.email.value.trim();
+  if (!email || !form.elements.email.checkValidity()) {
+    form.elements.email.focus();
+    showMessage(form, words().emailNotVerified, "error");
+    return;
+  }
+  const button = this;
+  button.disabled = true;
+  try {
+    await api("/api/auth/resend-verification", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+    showMessage(form, words().verificationResent, "success");
+  } catch (error) { showMessage(form, friendlyError(error), "error"); }
+  finally { button.disabled = false; }
 });
 document.querySelectorAll("[data-account-action]").forEach(function (button) {
   button.addEventListener("click", function () {
@@ -264,7 +310,8 @@ function friendlyError(error) {
   const lookup = {
     email_in_use: "duplicateError", email_not_found: "submitErrorEmail", invalid_credentials: "badLogin",
     rate_limited: "tooManyAttempts", own_repair: "ownVoteError", already_confirmed: "alreadyVoted",
-    authentication_required: "loginRequired", invalid_input: null, maintenance: "maintenancePageMessage", admin_required: "adminRequired"
+    authentication_required: "loginRequired", invalid_input: null, maintenance: "maintenancePageMessage", admin_required: "adminRequired",
+    email_not_verified: "emailNotVerified", image_required: "imageRequired", email_service_unavailable: "emailServiceUnavailable"
   };
   if (error.code === "invalid_input") return error.message || words().genericError;
   return words()[lookup[error.code]] || error.message || words().genericError;
@@ -692,7 +739,8 @@ function runAdminPostTest(repair, output) {
     { passed: typeof repair.vehicle === "string" && repair.vehicle.trim().length >= 2, label: words().adminTestVehicle },
     { passed: typeof repair.summary === "string" && repair.summary.trim().length >= 15, label: words().adminTestSummary },
     { passed: steps.length >= 2 && steps.length <= 30 && steps.every(function (step) { return typeof step === "string" && step.trim(); }) && steps.join(" ").trim().length >= 20, label: words().adminTestSteps },
-    { passed: parts.length <= 8 && parts.every(function (part) { try { return ["http:", "https:"].includes(new URL(part.url).protocol); } catch (error) { return false; } }), label: words().adminTestParts }
+    { passed: parts.length <= 8 && parts.every(function (part) { try { return ["http:", "https:"].includes(new URL(part.url).protocol); } catch (error) { return false; } }), label: words().adminTestParts },
+    { passed: Array.isArray(repair.stepImages) && repair.stepImages.some(Boolean), label: words().checkPhoto }
   ];
   const failed = checks.filter(function (check) { return !check.passed; });
   output.hidden = false;
@@ -716,6 +764,25 @@ function makeAdminRepairCard(repair) {
   card.appendChild(head);
   addText(card, "p", "admin-repair-meta", repair.vehicle + " · " + words().reportFrom + " " + repair.authorName);
   addText(card, "p", "admin-repair-meta", (repair.confirmations || 0) + " " + words().confirmations + " · " + (repair.comments || []).length + " " + words().commentsTitle);
+  const preview = document.createElement("details");
+  preview.className = "admin-post-preview";
+  addText(preview, "summary", "", words().adminViewPost);
+  addText(preview, "p", "", repair.summary);
+  if (!repair.stepImages?.some(Boolean)) addText(preview, "p", "admin-post-image-status", words().adminMissingPhoto);
+  const steps = document.createElement("ol");
+  (repair.steps || []).forEach(function (step, index) {
+    const item = addText(steps, "li", "", step);
+    const imageData = repair.stepImages?.[index];
+    if (imageData) {
+      const image = document.createElement("img");
+      image.src = imageData;
+      image.alt = (root.lang === "en" ? "Photo for step " : "Bild zu Schritt ") + String(index + 1);
+      image.loading = "lazy";
+      item.appendChild(image);
+    }
+  });
+  preview.appendChild(steps);
+  card.appendChild(preview);
   const actions = document.createElement("div");
   actions.className = "admin-repair-actions";
   const test = document.createElement("button");
@@ -907,6 +974,18 @@ function renderRepairs() {
     addText(meta, "span", "repair-difficulty", difficultyName(repair.difficulty));
     if ((repair.confirmations || 0) >= 10) addText(meta, "span", "repair-badge", words().verifiedBadge);
     if (repair.adminVerified) addText(meta, "span", "repair-badge admin-verified-badge", words().adminVerifiedBadge);
+    const coverImageData = repair.stepImages?.find(Boolean);
+    if (coverImageData) {
+      const cover = document.createElement("figure");
+      cover.className = "repair-cover";
+      const image = document.createElement("img");
+      image.className = "repair-cover-image";
+      image.src = coverImageData;
+      image.alt = repair.title + (root.lang === "en" ? " cover photo" : " – Vorschaubild");
+      image.loading = "lazy";
+      cover.appendChild(image);
+      card.appendChild(cover);
+    }
     card.appendChild(meta);
     addText(card, "h3", "", repair.title);
     addText(card, "p", "repair-vehicle", repair.vehicle);
@@ -1163,6 +1242,9 @@ document.querySelectorAll("[data-show-repair]").forEach(function (button) {
     }
     const form = document.getElementById("repair-form");
     form.reset();
+    if (window.Repairly) window.Repairly.pendingStepImages = [];
+    document.getElementById("step-image-preview").replaceChildren();
+    document.getElementById("step-image-input").value = "";
     form.elements.vehicle.readOnly = false;
     showMessage(form, "", "");
     updateRepairPreview();
@@ -1286,19 +1368,50 @@ document.getElementById("support-form").addEventListener("submit", async functio
 
 async function submitAuth(form, mode) {
   const submit = form.querySelector("[type=submit]");
+  const idleLabel = submit.textContent;
   submit.disabled = true;
+  submit.setAttribute("aria-busy", "true");
+  submit.textContent = mode === "register" ? words().authCreatingAccount : words().authSigningIn;
   try {
     const payload = Object.fromEntries(new FormData(form).entries());
     const result = await api("/api/auth/" + mode, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    if (mode === "register" && result.verificationRequired) {
+      form.reset();
+      const loginForm = document.getElementById("login-form");
+      loginForm.reset();
+      setAuthMode("login");
+      loginForm.elements.email.value = payload.email;
+      document.getElementById("resend-verification").hidden = false;
+      showMessage(loginForm, words().emailVerificationSent, "success");
+      loginForm.elements.email.focus();
+      return;
+    }
     currentUser = result.user;
     updateAccountUI();
     deliverSupportNotifications();
     form.reset();
+    form.querySelectorAll("[data-password-toggle]").forEach(function (button) {
+      button.closest(".password-input-wrap").querySelector("input").type = "password";
+      button.setAttribute("aria-pressed", "false");
+      button.textContent = words().passwordShow;
+    });
     showMessage(form, mode === "register" ? words().registerSuccess : words().loginSuccess, "success");
     window.setTimeout(function () { if (accountDialog.open) accountDialog.close(); }, 650);
   } catch (error) {
     showMessage(form, friendlyError(error), "error");
-  } finally { submit.disabled = false; }
+    if (error.code === "email_not_verified" && mode === "login") {
+      form.elements.password.value = "";
+      document.getElementById("resend-verification").hidden = false;
+    } else if (mode === "register" && ["email_delivery_failed", "email_service_unavailable"].includes(error.code)) {
+      const loginForm = document.getElementById("login-form");
+      const email = form.elements.email.value;
+      form.elements.password.value = "";
+      setAuthMode("login");
+      loginForm.elements.email.value = email;
+      document.getElementById("resend-verification").hidden = false;
+      showMessage(loginForm, friendlyError(error), "error");
+    }
+  } finally { submit.disabled = false; submit.removeAttribute("aria-busy"); submit.textContent = idleLabel; }
 }
 document.querySelectorAll("[data-auth-form]").forEach(function (form) {
   form.addEventListener("submit", function (event) {
@@ -1316,6 +1429,12 @@ document.getElementById("repair-form").addEventListener("submit", async function
   data.steps = data.steps.split(/\r?\n/).map(function (step) { return step.trim(); }).filter(Boolean);
   data.parts = data.parts.split(/\r?\n/).map(function (url) { return url.trim(); }).filter(Boolean);
   data.stepImages = Array.isArray(window.Repairly?.pendingStepImages) ? window.Repairly.pendingStepImages : [];
+  if (!data.stepImages.some(Boolean)) {
+    showMessage(form, words().imageRequired, "error");
+    submit.disabled = false;
+    document.getElementById("step-image-input").focus();
+    return;
+  }
   try {
     const result = await api("/api/repairs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
     repairs.unshift(result.repair);
@@ -1343,9 +1462,15 @@ function updateRepairPreview() {
   document.getElementById("preview-summary").textContent = summary || words().previewSummaryPlaceholder;
   document.getElementById("preview-category").textContent = categoryName(values.get("category")).toLocaleUpperCase(root.lang);
   document.getElementById("preview-difficulty").textContent = difficultyName(values.get("difficulty")).toLocaleUpperCase(root.lang);
+  const previewPhoto = document.getElementById("preview-photo");
+  const photoData = Array.isArray(window.Repairly?.pendingStepImages) ? window.Repairly.pendingStepImages.find(Boolean) : null;
+  if (photoData) previewPhoto.src = photoData;
+  else previewPhoto.removeAttribute("src");
+  previewPhoto.hidden = !photoData;
   document.querySelector('[data-check="title"]').classList.toggle("is-done", title.length >= 5);
   document.querySelector('[data-check="vehicle"]').classList.toggle("is-done", vehicle.length >= 2);
   document.querySelector('[data-check="steps"]').classList.toggle("is-done", steps.length >= 2 && steps.join(" ").length >= 20);
+  document.querySelector('[data-check="photo"]').classList.toggle("is-done", Array.isArray(window.Repairly?.pendingStepImages) && window.Repairly.pendingStepImages.some(Boolean));
 }
 
 document.getElementById("repair-form").addEventListener("input", updateRepairPreview);
@@ -1367,6 +1492,7 @@ window.Repairly = {
   refreshAdmin: loadAdminOverview,
   supportDeviceToken,
   pendingStepImages: [],
+  updateRepairPreview,
   get currentUser() { return currentUser; },
   setCurrentUser(user) { currentUser = user; updateAccountUI(); },
   get repairs() { return repairs; },
@@ -1387,8 +1513,36 @@ async function start() {
     updateAccountUI();
     if (session.repairs) repairs = session.repairs;
   } catch (error) {}
+  await loadAuthProviders();
   startMaintenanceWatcher();
   await loadRepairs();
   await deliverSupportNotifications();
+  const query = new URLSearchParams(window.location.search);
+  const oauthResult = query.get("oauth");
+  const verified = query.get("email-verified");
+  const verification = query.get("email-verification");
+  let message = "";
+  let isError = false;
+  if (verified) message = words().emailVerified;
+  if (verification === "expired") {
+    message = words().emailVerificationExpired;
+    isError = true;
+    setAuthMode("login");
+    accountDialog.showModal();
+    document.getElementById("resend-verification").hidden = false;
+    showMessage(document.getElementById("login-form"), message, "error");
+  }
+  if (oauthResult) {
+    const oauthMessages = { success: words().oauthSuccess, cancelled: words().oauthCancelled, unavailable: words().oauthUnavailable, failed: words().oauthFailed, "unverified-email": words().oauthUnverifiedEmail };
+    message = oauthMessages[oauthResult] || words().oauthFailed;
+    isError = oauthResult !== "success";
+    if (isError) { setAuthMode("login"); accountDialog.showModal(); showMessage(document.getElementById("login-form"), message, "error"); }
+  }
+  if (message && !isError) showToast(message, "success");
+  if (verified || verification || oauthResult) {
+    ["email-verified", "email-verification", "oauth"].forEach(function (key) { query.delete(key); });
+    const rest = query.toString();
+    window.history.replaceState(null, "", window.location.pathname + (rest ? "?" + rest : "") + window.location.hash);
+  }
 }
 start();
