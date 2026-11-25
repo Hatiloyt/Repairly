@@ -35,7 +35,7 @@ Die Datenbank wird beim ersten Start als `data/repairly.json` angelegt. Sie wird
 
 Das bestehende Hansi-Konto erhält beim Serverstart die Admin-Rolle. Im Wartungsmodus sehen normale Besucher eine Wartungsseite; Admins können Reparaturen und Einstellungen weiter verwalten. Die Online-Liste zählt angemeldete Nutzer, deren offener Tab zuletzt innerhalb von 60 Sekunden ein Lebenszeichen gesendet hat.
 
-Der Server bindet sich standardmäßig an `127.0.0.1`. Für einen Betrieb im Internet braucht es zusätzlich HTTPS, eine geeignete dauerhafte Datenbank und die unten beschriebene E-Mail-Konfiguration. Die Beispielanleitungen sind Anschauungsmaterial und keine fahrzeugspezifische Herstellerfreigabe.
+Der Server bindet sich standardmäßig an `127.0.0.1`. Für einen Betrieb im Internet braucht es zusätzlich HTTPS und eine geeignete dauerhafte Datenbank. E-Mail-Versand ist optional; ohne ihn müssen Admins die Bestätigungscodes manuell weitergeben. Die Beispielanleitungen sind Anschauungsmaterial und keine fahrzeugspezifische Herstellerfreigabe.
 
 ## E-Mail-Bestätigung und Anmeldung verbinden
 
@@ -47,7 +47,7 @@ Kopiere `.env.example` nach `.env` und trage dort die Zugangsdaten ein. Die Date
 
 Als Callback-Adresse beim Anbieter exakt `https://DEINE-DOMAIN/api/auth/oauth/google/callback`, `https://DEINE-DOMAIN/api/auth/oauth/github/callback` oder `https://DEINE-DOMAIN/api/auth/oauth/discord/callback` eintragen. Die Domain muss mit `REPAIRLY_PUBLIC_URL` übereinstimmen. Bei lokalen OAuth-Tests `http://127.0.0.1:3000` als Basisadresse und dieselbe Callback-Adresse mit `/api/auth/oauth/…/callback` registrieren.
 
-Neue E-Mail/Passwort-Konten können sich erst nach dem Bestätigungslink anmelden. In lokaler Entwicklung wird der Link ohne Resend-Konfiguration im Server-Terminal ausgegeben. Google-, GitHub- und Discord-Anmeldungen werden nur akzeptiert, wenn der jeweilige Anbieter eine bestätigte E-Mail-Adresse meldet. Für Discord-OAuth sind `DISCORD_CLIENT_ID` und `DISCORD_CLIENT_SECRET` nötig; sie sind unabhängig vom Discord-Support-Bot.
+Neue E-Mail/Passwort-Konten können sich erst nach der Bestätigung anmelden. Ohne E-Mail-Konfiguration wird ein sechsstelliger Code erzeugt und im Admin-Panel unter **E-Mail-Codes** angezeigt; er gilt 24 Stunden und kann einmal verwendet werden. Derselbe Code wird zusätzlich im Server-Terminal ausgegeben. Wenn E-Mail-Versand konfiguriert ist, wird der Code zusammen mit dem Bestätigungslink per E-Mail verschickt. Google-, GitHub- und Discord-Anmeldungen werden nur akzeptiert, wenn der jeweilige Anbieter eine bestätigte E-Mail-Adresse meldet. Für Discord-OAuth sind `DISCORD_CLIENT_ID` und `DISCORD_CLIENT_SECRET` nötig; sie sind unabhängig vom Discord-Support-Bot.
 
 ## Discord-Support verbinden
 

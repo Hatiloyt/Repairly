@@ -46,7 +46,9 @@ const translations = {
     proofStampOne: "10×", proofStampTwo: "ERFOLGREICH", proofStampThree: "BESTÄTIGT", backToTop: "Zurück nach oben",
     footerLine: "Reparaturen gemeinsam dokumentieren und nachvollziehbar bestätigen.",
     loginSuccess: "Du bist jetzt angemeldet.", registerSuccess: "Bestätigungslink gesendet. Öffne deine E-Mail, um dein Konto zu aktivieren.", repairSuccess: "Deine Anleitung wurde veröffentlicht.", verifySuccess: "Danke! Deine Bestätigung wurde gespeichert.",
-    emailVerificationSent: "Wir haben dir einen Bestätigungslink geschickt. Öffne deine E-Mail, um dein Konto zu aktivieren.", emailVerified: "Deine E-Mail-Adresse ist bestätigt. Du bist angemeldet.", emailVerificationExpired: "Der Bestätigungslink ist abgelaufen. Fordere einen neuen Link an.", emailNotVerified: "Bitte bestätige zuerst deine E-Mail-Adresse. Du kannst dir den Link erneut senden lassen.", emailServiceUnavailable: "Der E-Mail-Versand ist noch nicht eingerichtet.", resendVerification: "Bestätigungslink erneut senden", verificationResent: "Falls ein offenes Konto zu dieser Adresse gehört, ist ein neuer Link unterwegs.",
+    emailVerificationSent: "Wir haben dir einen Bestätigungslink geschickt. Öffne deine E-Mail, um dein Konto zu aktivieren.", verificationAdminInstructions: "Kein E-Mail-Versand eingerichtet. Bitte hol dir den sechsstelligen Code beim Admin-Panel und bestätige hier deine Adresse.", emailVerified: "Deine E-Mail-Adresse ist bestätigt. Du bist angemeldet.", emailVerificationExpired: "Der Bestätigungslink ist abgelaufen. Fordere einen neuen Code oder Link an.", emailNotVerified: "Bitte bestätige zuerst deine E-Mail-Adresse. Gib den Code ein oder fordere einen neuen Link an.", emailServiceUnavailable: "Der E-Mail-Versand ist noch nicht eingerichtet.", resendVerification: "Link oder Code erneut anfordern", verificationResent: "Falls ein offenes Konto zu dieser Adresse gehört, ist ein neuer Link oder Code bereit.",
+    verificationCodeInstructions: "Gib den sechsstelligen Bestätigungscode ein.", verificationCodeLabel: "Bestätigungscode", verificationCodeHint: "Der Code läuft nach 24 Stunden ab.", verifyCodeSubmit: "Code bestätigen", verifyCodeSubmitting: "Wird bestätigt …", invalidVerificationCode: "Der Code ist falsch oder abgelaufen. Fordere einen neuen an.",
+    adminVerificationCodes: "E-Mail-Codes", adminVerificationTitle: "Bestätigungscodes", adminVerificationIntro: "Ohne E-Mail-Versand stehen neue Codes hier 24 Stunden bereit. Teile den Code mit dem jeweiligen Nutzer.", adminNoVerifications: "Keine offenen Bestätigungscodes.", adminVerificationEmailMode: "Codes werden per E-Mail versendet; sie erscheinen hier nicht.", copyVerificationCode: "Code kopieren", verificationCodeCopied: "Code kopiert.",
     oauthDivider: "Oder anmelden mit", oauthUnavailable: "Diese Anmeldung ist noch nicht eingerichtet.", oauthCancelled: "Anmeldung abgebrochen.", oauthFailed: "Anmeldung fehlgeschlagen. Bitte versuche es erneut.", oauthUnverifiedEmail: "Der Anbieter hat keine bestätigte E-Mail-Adresse geliefert.", oauthSuccess: "Du bist jetzt angemeldet.", passwordShow: "Zeigen", passwordHide: "Verbergen", authSigningIn: "Du wirst angemeldet …", authCreatingAccount: "Konto wird erstellt …", adminCreatePost: "Beitrag erstellen", adminViewPost: "Beitrag ansehen", adminMissingPhoto: "Pflichtbild fehlt", imageRequired: "Füge mindestens ein Bild hinzu. Das erste Bild wird als Vorschaubild angezeigt.",
     forYou: "Für dich", myGarage: "Meine Garage", allGuides: "Alle Anleitungen", feedLabel: "Anleitungen anzeigen",
     dashboardKicker: "DEIN REPAIRLY", hello: "Hallo", dashboardDescription: "Finde neue Reparaturen, die zu deinen Fahrzeugen passen.", dashboardWithVehicles: "Neue Anleitungen für {vehicles} und mehr.", dashboardNoVehicles: "Trage dein Auto oder Motorrad ein – dann sortiert Repairly passende Anleitungen nach oben.", manageGarage: "Garage verwalten", forVehicle: "Passt zu deinem Fahrzeug",
@@ -109,7 +111,9 @@ const translations = {
     proofStampOne: "10×", proofStampTwo: "SUCCESSFUL", proofStampThree: "CONFIRMED", backToTop: "Back to top",
     footerLine: "Document repairs together and confirm what worked.",
     loginSuccess: "You are now logged in.", registerSuccess: "Verification link sent. Check your email to activate your account.", repairSuccess: "Your guide has been published.", verifySuccess: "Thanks! Your confirmation has been saved.",
-    emailVerificationSent: "We sent a verification link. Check your email to activate your account.", emailVerified: "Your email is verified. You are signed in.", emailVerificationExpired: "That verification link has expired. Request a new one.", emailNotVerified: "Please verify your email address first. You can request another link.", emailServiceUnavailable: "Email delivery is not configured yet.", resendVerification: "Resend verification link", verificationResent: "If an unverified account uses that address, a new link is on its way.",
+    emailVerificationSent: "We sent a verification link. Check your email to activate your account.", verificationAdminInstructions: "Email delivery is off. Ask an admin for the six-digit code shown in the admin panel, then enter it here.", emailVerified: "Your email is verified. You are signed in.", emailVerificationExpired: "That link has expired. Request a new code or link.", emailNotVerified: "Please verify your email first. Enter a code or request a new link.", emailServiceUnavailable: "Email delivery is not configured yet.", resendVerification: "Request a new link or code", verificationResent: "If an unverified account uses that address, a new link or code is ready.",
+    verificationCodeInstructions: "Enter the six-digit verification code.", verificationCodeLabel: "Verification code", verificationCodeHint: "The code expires after 24 hours.", verifyCodeSubmit: "Verify code", verifyCodeSubmitting: "Verifying …", invalidVerificationCode: "That code is invalid or expired. Request a new one.",
+    adminVerificationCodes: "Email codes", adminVerificationTitle: "Verification codes", adminVerificationIntro: "When email delivery is off, new codes appear here for 24 hours. Share each code with its user.", adminNoVerifications: "No pending verification codes.", adminVerificationEmailMode: "Codes are being sent by email; they are not shown here.", copyVerificationCode: "Copy code", verificationCodeCopied: "Code copied.",
     oauthDivider: "Or continue with", oauthUnavailable: "This sign-in option is not configured yet.", oauthCancelled: "Sign-in cancelled.", oauthFailed: "Sign-in failed. Please try again.", oauthUnverifiedEmail: "The provider did not return a verified email address.", oauthSuccess: "You are now signed in.", passwordShow: "Show", passwordHide: "Hide", authSigningIn: "Signing you in …", authCreatingAccount: "Creating your account …", adminCreatePost: "Create a post", adminViewPost: "View post", adminMissingPhoto: "Required image missing", imageRequired: "Add at least one image. The first image appears as the post preview.",
     forYou: "For you", myGarage: "My garage", allGuides: "All guides", feedLabel: "Choose a guide feed",
     dashboardKicker: "YOUR REPAIRLY", hello: "Hi", dashboardDescription: "Find fresh repair guides that fit your vehicles.", dashboardWithVehicles: "New guides for {vehicles} and more.", dashboardNoVehicles: "Add your car or motorcycle and Repairly will rank matching guides first.", manageGarage: "Manage garage", forVehicle: "Matches your vehicle",
@@ -226,6 +230,7 @@ function setAuthMode(mode) {
     });
   });
   document.getElementById("resend-verification").hidden = true;
+  document.getElementById("email-code-panel").hidden = true;
   document.getElementById("account-dialog-title").textContent = register ? words().registerModeTitle : words().loginModeTitle;
   document.getElementById("account-dialog-intro").textContent = register ? words().registerModeIntro : words().loginModeIntro;
 }
@@ -268,9 +273,36 @@ document.getElementById("resend-verification").addEventListener("click", async f
   button.disabled = true;
   try {
     await api("/api/auth/resend-verification", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+    document.getElementById("email-code-panel").hidden = false;
+    document.getElementById("verification-code").value = "";
     showMessage(form, words().verificationResent, "success");
   } catch (error) { showMessage(form, friendlyError(error), "error"); }
   finally { button.disabled = false; }
+});
+document.getElementById("verification-code").addEventListener("input", function () {
+  this.value = this.value.replace(/\D/g, "").slice(0, 6);
+});
+document.getElementById("verify-email-code").addEventListener("click", async function () {
+  const form = document.getElementById("login-form");
+  const email = form.elements.email.value.trim();
+  const codeInput = document.getElementById("verification-code");
+  if (!email || !form.elements.email.checkValidity()) { form.elements.email.focus(); showMessage(form, words().emailNotVerified, "error"); return; }
+  if (codeInput.value.length !== 6 || !codeInput.checkValidity()) { codeInput.focus(); showMessage(form, words().invalidVerificationCode, "error"); return; }
+  const button = this;
+  const label = button.textContent;
+  button.disabled = true;
+  button.textContent = words().verifyCodeSubmitting;
+  try {
+    const result = await api("/api/auth/verify-code", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, code: codeInput.value }) });
+    currentUser = result.user;
+    updateAccountUI();
+    deliverSupportNotifications();
+    form.reset();
+    document.getElementById("email-code-panel").hidden = true;
+    accountDialog.close();
+    showToast(words().emailVerified, "success");
+  } catch (error) { showMessage(form, friendlyError(error), "error"); }
+  finally { button.disabled = false; button.textContent = label; }
 });
 document.querySelectorAll("[data-account-action]").forEach(function (button) {
   button.addEventListener("click", function () {
@@ -311,7 +343,7 @@ function friendlyError(error) {
     email_in_use: "duplicateError", email_not_found: "submitErrorEmail", invalid_credentials: "badLogin",
     rate_limited: "tooManyAttempts", own_repair: "ownVoteError", already_confirmed: "alreadyVoted",
     authentication_required: "loginRequired", invalid_input: null, maintenance: "maintenancePageMessage", admin_required: "adminRequired",
-    email_not_verified: "emailNotVerified", image_required: "imageRequired", email_service_unavailable: "emailServiceUnavailable"
+    email_not_verified: "emailNotVerified", invalid_verification_code: "invalidVerificationCode", image_required: "imageRequired", email_service_unavailable: "emailServiceUnavailable"
   };
   if (error.code === "invalid_input") return error.message || words().genericError;
   return words()[lookup[error.code]] || error.message || words().genericError;
@@ -815,6 +847,36 @@ function renderAdminRepairs(repairsToManage) {
   repairsToManage.forEach(function (repair) { container.appendChild(makeAdminRepairCard(repair)); });
 }
 
+function renderAdminVerifications(items, codesEnabled) {
+  const container = document.getElementById("admin-verification-list");
+  const count = document.getElementById("admin-verification-count");
+  container.replaceChildren();
+  count.textContent = String(items.length);
+  if (!codesEnabled) return emptyAdminList(container, words().adminVerificationEmailMode);
+  if (!items.length) return emptyAdminList(container, words().adminNoVerifications);
+  items.forEach(function (item) {
+    const card = document.createElement("article");
+    card.className = "admin-verification-card";
+    addText(card, "strong", "", item.name);
+    addText(card, "p", "admin-verification-email", item.email);
+    const codeRow = document.createElement("div");
+    codeRow.className = "admin-verification-code-row";
+    addText(codeRow, "code", "admin-verification-code", item.code);
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "report-action";
+    copy.textContent = words().copyVerificationCode;
+    copy.addEventListener("click", async function () {
+      try { await navigator.clipboard.writeText(item.code); showToast(words().verificationCodeCopied, "success"); }
+      catch { showToast(item.code, "success"); }
+    });
+    codeRow.appendChild(copy);
+    card.appendChild(codeRow);
+    addText(card, "small", "admin-verification-expiry", (root.lang === "en" ? "Expires " : "Läuft ab: ") + formatAdminDate(item.expiresAt));
+    container.appendChild(card);
+  });
+}
+
 function renderAdminUsers(users) {
   const body = document.getElementById("admin-user-list");
   body.replaceChildren();
@@ -922,6 +984,7 @@ async function loadAdminOverview() {
     renderAdminReports(document.getElementById("admin-all-reports"), result.reports);
     renderAdminUsers(result.users);
     renderAdminRepairs(result.repairs || []);
+    renderAdminVerifications(result.pendingVerifications || [], Boolean(result.verificationCodesEnabled));
     updateMaintenanceCard(result.maintenance);
   } catch (error) {
     document.getElementById("admin-feedback").textContent = friendlyError(error);
@@ -1382,8 +1445,11 @@ async function submitAuth(form, mode) {
       setAuthMode("login");
       loginForm.elements.email.value = payload.email;
       document.getElementById("resend-verification").hidden = false;
-      showMessage(loginForm, words().emailVerificationSent, "success");
-      loginForm.elements.email.focus();
+      document.getElementById("email-code-panel").hidden = false;
+      document.getElementById("verification-code").value = "";
+      showMessage(loginForm, result.verificationMode === "admin" ? words().verificationAdminInstructions : words().emailVerificationSent, "success");
+      if (result.verificationMode === "admin") document.getElementById("verification-code").focus();
+      else loginForm.elements.email.focus();
       return;
     }
     currentUser = result.user;
@@ -1402,6 +1468,7 @@ async function submitAuth(form, mode) {
     if (error.code === "email_not_verified" && mode === "login") {
       form.elements.password.value = "";
       document.getElementById("resend-verification").hidden = false;
+      document.getElementById("email-code-panel").hidden = false;
     } else if (mode === "register" && ["email_delivery_failed", "email_service_unavailable"].includes(error.code)) {
       const loginForm = document.getElementById("login-form");
       const email = form.elements.email.value;
@@ -1409,6 +1476,7 @@ async function submitAuth(form, mode) {
       setAuthMode("login");
       loginForm.elements.email.value = email;
       document.getElementById("resend-verification").hidden = false;
+      document.getElementById("email-code-panel").hidden = error.code === "email_delivery_failed";
       showMessage(loginForm, friendlyError(error), "error");
     }
   } finally { submit.disabled = false; submit.removeAttribute("aria-busy"); submit.textContent = idleLabel; }
@@ -1530,6 +1598,7 @@ async function start() {
     setAuthMode("login");
     accountDialog.showModal();
     document.getElementById("resend-verification").hidden = false;
+    document.getElementById("email-code-panel").hidden = false;
     showMessage(document.getElementById("login-form"), message, "error");
   }
   if (oauthResult) {

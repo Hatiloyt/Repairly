@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { createHash, randomBytes, scrypt as scryptCallback, timingSafeEqual, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomInt, scrypt as scryptCallback, timingSafeEqual, randomUUID } from "node:crypto";
 import { promisify } from "node:util";
 import { readFile, writeFile, mkdir, rename } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
@@ -26,6 +26,7 @@ const discordSupportChannelId = process.env.DISCORD_SUPPORT_CHANNEL_ID || "";
 const discordEnabled = Boolean(discordBotToken && discordSupportChannelId);
 const resendApiKey = process.env.RESEND_API_KEY || "";
 const verificationFromEmail = process.env.REPAIRLY_FROM_EMAIL || "";
+const adminCodeVerificationEnabled = !resendApiKey || !verificationFromEmail;
 const oauthProviders = {
   google: { clientId: process.env.GOOGLE_CLIENT_ID || "", clientSecret: process.env.GOOGLE_CLIENT_SECRET || "" },
   github: { clientId: process.env.GITHUB_CLIENT_ID || "", clientSecret: process.env.GITHUB_CLIENT_SECRET || "" },
@@ -454,14 +455,17 @@ function verificationLink(request, token) {
 
 async function createEmailVerification(user, request) {
   const token = randomBytes(32).toString("base64url");
+  const code = String(randomInt(100000, 1000000));
   database.emailVerifications = database.emailVerifications.filter((item) => item.userId !== user.id);
-  database.emailVerifications.push({ userId: user.id, tokenHash: hashToken(token), expiresAt: Date.now() + 24 * 60 * 60 * 1000 });
+  database.emailVerifications.push({ userId: user.id, tokenHash: hashToken(token), codeHash: hashToken(code), adminCode: adminCodeVerificationEnabled ? code : null, expiresAt: Date.now() + 24 * 60 * 60 * 1000 });
   await saveDatabase();
   const link = verificationLink(request, token);
   if (!resendApiKey || !verificationFromEmail) {
-    if (production) throw Object.assign(new Error("Die E-Mail-Bestätigung ist noch nicht eingerichtet."), { status: 503, code: "email_service_unavailable" });
-    console.info(`Repairly email verification link for ${user.email}: ${link}`);
-    return;
+    if (!production) {
+      console.info(`Repairly verification link for ${user.email}: ${link}`);
+      console.info(`Repairly verification code for ${user.email}: ${code}`);
+    }
+    return "admin";
   }
   const result = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -470,7 +474,7 @@ async function createEmailVerification(user, request) {
       from: verificationFromEmail,
       to: [user.email],
       subject: "Bestätige deine Repairly-E-Mail-Adresse",
-      html: `<p>Hallo ${user.name.replace(/[&<>"']/g, "").slice(0, 40)},</p><p>bestätige deine E-Mail-Adresse, um dein Repairly-Konto zu aktivieren.</p><p><a href="${link}">E-Mail-Adresse bestätigen</a></p><p>Der Link ist 24 Stunden gültig.</p>`
+      html: `<p>Hallo ${user.name.replace(/[&<>"']/g, "").slice(0, 40)},</p><p>bestätige deine E-Mail-Adresse, um dein Repairly-Konto zu aktivieren.</p><p><a href="${link}">E-Mail-Adresse bestätigen</a></p><p>Alternativ kannst du diesen sechsstelligen Code auf der Anmeldeseite eingeben: <strong>${code}</strong></p><p>Der Link und Code sind 24 Stunden gültig.</p>`
     }),
     signal: AbortSignal.timeout(12_000)
   });
@@ -479,6 +483,7 @@ async function createEmailVerification(user, request) {
     console.error(`Verification email delivery failed (${result.status}): ${detail}`);
     throw Object.assign(new Error("Die Bestätigungs-E-Mail konnte gerade nicht gesendet werden. Bitte versuche es erneut."), { status: 502, code: "email_delivery_failed" });
   }
+  return "email";
 }
 
 async function oauthFetchJson(url, options) {
@@ -645,9 +650,17 @@ async function handleApi(request, response, url) {
       online: onlineIds.has(account.id), vehicleCount: (account.vehicles || []).length, createdAt: account.createdAt || null
     }));
     const reports = database.reports.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(({ notifyTokenHash, ...report }) => report);
+    const pendingVerifications = adminCodeVerificationEnabled
+      ? database.emailVerifications.filter((item) => item.expiresAt > Date.now() && item.adminCode).map((item) => {
+        const account = database.users.find((entry) => entry.id === item.userId && !entry.emailVerified);
+        return account ? { name: account.name, email: account.email, code: item.adminCode, expiresAt: item.expiresAt } : null;
+      }).filter(Boolean)
+      : [];
     return json(response, 200, {
       maintenance: database.maintenance,
       discord: { configured: discordEnabled, connected: Boolean(discordBotId), supportChannelId: discordEnabled ? discordSupportChannelId : null },
+      verificationCodesEnabled: adminCodeVerificationEnabled,
+      pendingVerifications,
       users,
       onlineCount: onlineIds.size,
       openReportCount: reports.filter((report) => report.status === "open").length,
@@ -688,19 +701,36 @@ async function handleApi(request, response, url) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return apiError(response, 400, "invalid_input", "Bitte gib eine gültige E-Mail-Adresse ein.");
     if (password.length < 10 || password.length > 128) return apiError(response, 400, "invalid_input", "Das Passwort muss 10 bis 128 Zeichen lang sein.");
     if (database.users.some((item) => item.email === email)) return apiError(response, 409, "email_in_use", "Für diese E-Mail-Adresse gibt es bereits ein Konto.");
-    if (production && (!resendApiKey || !verificationFromEmail)) return apiError(response, 503, "email_service_unavailable", "Die E-Mail-Bestätigung ist noch nicht eingerichtet.");
     const salt = randomBytes(16).toString("hex");
     const derivedHash = await passwordHash(password, salt);
     if (database.users.some((item) => item.email === email)) return apiError(response, 409, "email_in_use", "Für diese E-Mail-Adresse gibt es bereits ein Konto.");
     const userRecord = { id: randomUUID(), name, email, salt, passwordHash: derivedHash, emailVerified: false, authProviders: {}, role: "user", vehicles: [], createdAt: new Date().toISOString() };
     database.users.push(userRecord);
-    try { await createEmailVerification(userRecord, request); }
+    let verificationMode;
+    try { verificationMode = await createEmailVerification(userRecord, request); }
     catch (error) { return apiError(response, error.status || 502, error.code || "email_delivery_failed", error.message || "Die Bestätigungs-E-Mail konnte nicht gesendet werden."); }
-    return json(response, 201, { verificationRequired: true });
+    return json(response, 201, { verificationRequired: true, verificationMode });
+  }
+
+  if (url.pathname === "/api/auth/verify-code") {
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const code = typeof body.code === "string" ? body.code.trim() : "";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^\d{6}$/.test(code)) return apiError(response, 400, "invalid_input", "Bitte gib E-Mail-Adresse und sechsstelligen Code ein.");
+    if (tooManyAttempts(request, `code:${email}`)) return apiError(response, 429, "rate_limited", "Zu viele Versuche. Bitte warte kurz.");
+    const record = database.emailVerifications.find((item) => item.userId === database.users.find((account) => account.email === email)?.id && item.expiresAt > Date.now() && item.codeHash);
+    const submittedHash = Buffer.from(hashToken(code), "hex");
+    const savedHash = Buffer.from(record?.codeHash || "", "hex");
+    if (!record || submittedHash.length !== savedHash.length || !timingSafeEqual(submittedHash, savedHash)) return apiError(response, 400, "invalid_verification_code", "Der Code ist falsch oder abgelaufen. Fordere einen neuen an.");
+    const account = database.users.find((item) => item.id === record.userId);
+    if (!account) return apiError(response, 400, "invalid_verification_code", "Der Code ist falsch oder abgelaufen. Fordere einen neuen an.");
+    account.emailVerified = true;
+    database.emailVerifications = database.emailVerifications.filter((item) => item !== record);
+    loginAttempts.delete(rateLimitKey(request, `code:${email}`));
+    const sessionToken = await createSession(account);
+    return json(response, 200, { user: publicUser(account) }, { "Set-Cookie": sessionCookie(sessionToken) });
   }
 
   if (url.pathname === "/api/auth/resend-verification") {
-    if (production && (!resendApiKey || !verificationFromEmail)) return apiError(response, 503, "email_service_unavailable", "Die E-Mail-Bestätigung ist noch nicht eingerichtet.");
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
     if (email && !tooManyAttempts(request, `verify:${email}`)) {
       const account = database.users.find((item) => item.email === email && !item.emailVerified);
