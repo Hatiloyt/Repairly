@@ -132,6 +132,19 @@ const translations = {
   }
 };
 
+Object.assign(translations.de, {
+  passwordShow: "Passwort zeigen", passwordHide: "Passwort verbergen",
+  adminMessageAction: "Nachricht schreiben", adminMessageLabel: "Nachricht an {name}", adminMessagePlaceholder: "Schreibe eine Nachricht …",
+  adminMessageSend: "Senden", adminMessageCancel: "Abbrechen", adminMessageSent: "Nachricht wurde gesendet.",
+  notificationAdminMessage: "hat dir eine Nachricht geschickt."
+});
+Object.assign(translations.en, {
+  passwordShow: "Show password", passwordHide: "Hide password",
+  adminMessageAction: "Send a message", adminMessageLabel: "Message to {name}", adminMessagePlaceholder: "Write a message …",
+  adminMessageSend: "Send", adminMessageCancel: "Cancel", adminMessageSent: "Message sent.",
+  notificationAdminMessage: "sent you a message."
+});
+
 const root = document.documentElement;
 const themeButton = document.getElementById("theme-toggle");
 const themeLabel = document.getElementById("theme-label");
@@ -226,7 +239,7 @@ function setAuthMode(mode) {
     form.querySelectorAll("[data-password-toggle]").forEach(function (button) {
       button.closest(".password-input-wrap").querySelector("input").type = "password";
       button.setAttribute("aria-pressed", "false");
-      button.textContent = words().passwordShow;
+      button.setAttribute("aria-label", words().passwordShow);
     });
   });
   document.getElementById("resend-verification").hidden = true;
@@ -242,12 +255,16 @@ document.querySelectorAll("[data-auth-mode]").forEach(function (button) {
   button.addEventListener("click", function () { setAuthMode(button.dataset.authMode); });
 });
 document.querySelectorAll("[data-password-toggle]").forEach(function (button) {
+  button.removeAttribute("data-i18n");
+  button.dataset.i18nAriaLabel = "passwordShow";
+  button.setAttribute("aria-label", words().passwordShow);
+  button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="password-eye-open" d="M2.5 12s3.3-6 9.5-6 9.5 6 9.5 6-3.3 6-9.5 6-9.5-6-9.5-6Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle class="password-eye-open" cx="12" cy="12" r="2.7" fill="none" stroke="currentColor" stroke-width="1.7"/><path class="password-eye-closed" d="m3 3 18 18M10.6 6.2c.5-.1.9-.2 1.4-.2 6.2 0 9.5 6 9.5 6a15.3 15.3 0 0 1-3 3.5M6.2 6.3C3.8 7.8 2.5 12 2.5 12s3.3 6 9.5 6c1.2 0 2.3-.2 3.2-.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   button.addEventListener("click", function () {
     const input = button.closest(".password-input-wrap").querySelector("input");
     const visible = input.type === "password";
     input.type = visible ? "text" : "password";
     button.setAttribute("aria-pressed", String(visible));
-    button.textContent = visible ? words().passwordHide : words().passwordShow;
+    button.setAttribute("aria-label", visible ? words().passwordHide : words().passwordShow);
   });
 });
 
@@ -314,7 +331,7 @@ document.querySelectorAll("[data-close-dialog]").forEach(function (button) {
   button.addEventListener("click", function () { button.closest("dialog").close(); });
 });
 document.querySelectorAll("dialog").forEach(function (dialog) {
-  dialog.addEventListener("click", function (event) { if (event.target === dialog) dialog.close(); });
+  dialog.addEventListener("click", function (event) { if (event.target === dialog && dialog !== accountDialog) dialog.close(); });
 });
 
 async function api(path, options) {
@@ -898,16 +915,72 @@ function renderAdminUsers(users) {
     garageCell.textContent = String(user.vehicleCount || 0);
     row.appendChild(garageCell);
     const actionCell = document.createElement("td");
+    const actions = document.createElement("div");
+    actions.className = "admin-user-actions";
     if (!user.isOwner && user.id !== currentUser?.id) {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "role-toggle";
       button.textContent = user.role === "admin" ? words().removeFromTeam : words().grantTeam;
       button.addEventListener("click", function () { updateUserRole(user.id, user.role === "admin" ? "user" : "admin"); });
-      actionCell.appendChild(button);
+      actions.appendChild(button);
     }
+    const messageButton = document.createElement("button");
+    messageButton.type = "button";
+    messageButton.className = "role-toggle";
+    messageButton.textContent = words().adminMessageAction;
+    messageButton.addEventListener("click", function () { openAdminMessageForm(user, actionCell); });
+    actions.appendChild(messageButton);
+    actionCell.appendChild(actions);
     row.appendChild(actionCell);
     body.appendChild(row);
+  });
+}
+
+function openAdminMessageForm(user, actionCell) {
+  const originalActions = Array.from(actionCell.childNodes);
+  const form = document.createElement("form");
+  form.className = "admin-user-message-form";
+  const label = document.createElement("label");
+  label.textContent = words().adminMessageLabel.replace("{name}", user.name);
+  const textarea = document.createElement("textarea");
+  textarea.name = "text";
+  textarea.rows = 3;
+  textarea.maxLength = 2000;
+  textarea.required = true;
+  textarea.placeholder = words().adminMessagePlaceholder;
+  label.appendChild(textarea);
+  form.appendChild(label);
+  const buttons = document.createElement("div");
+  buttons.className = "admin-user-message-buttons";
+  const send = document.createElement("button");
+  send.type = "submit";
+  send.className = "role-toggle";
+  send.textContent = words().adminMessageSend;
+  const cancel = document.createElement("button");
+  cancel.type = "button";
+  cancel.className = "role-toggle";
+  cancel.textContent = words().adminMessageCancel;
+  cancel.addEventListener("click", function () { actionCell.replaceChildren(...originalActions); });
+  buttons.append(send, cancel);
+  form.appendChild(buttons);
+  actionCell.replaceChildren(form);
+  textarea.focus();
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    send.disabled = true;
+    try {
+      await api("/api/admin/users/" + encodeURIComponent(user.id) + "/messages", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: textarea.value })
+      });
+      showToast(words().adminMessageSent, "success");
+      actionCell.replaceChildren(...originalActions);
+      await loadAdminOverview();
+    } catch (error) {
+      showToast(friendlyError(error), "error");
+      send.disabled = false;
+    }
   });
 }
 
@@ -982,7 +1055,7 @@ async function loadAdminOverview() {
     renderAdminOnline(result.users);
     renderAdminReports(document.getElementById("admin-recent-reports"), result.reports.slice(0, 5));
     renderAdminReports(document.getElementById("admin-all-reports"), result.reports);
-    renderAdminUsers(result.users);
+    if (!document.querySelector(".admin-user-message-form")) renderAdminUsers(result.users);
     renderAdminRepairs(result.repairs || []);
     renderAdminVerifications(result.pendingVerifications || [], Boolean(result.verificationCodesEnabled));
     updateMaintenanceCard(result.maintenance);
@@ -1459,7 +1532,7 @@ async function submitAuth(form, mode) {
     form.querySelectorAll("[data-password-toggle]").forEach(function (button) {
       button.closest(".password-input-wrap").querySelector("input").type = "password";
       button.setAttribute("aria-pressed", "false");
-      button.textContent = words().passwordShow;
+      button.setAttribute("aria-label", words().passwordShow);
     });
     showMessage(form, mode === "register" ? words().registerSuccess : words().loginSuccess, "success");
     window.setTimeout(function () { if (accountDialog.open) accountDialog.close(); }, 650);
@@ -1499,6 +1572,12 @@ document.getElementById("repair-form").addEventListener("submit", async function
   data.stepImages = Array.isArray(window.Repairly?.pendingStepImages) ? window.Repairly.pendingStepImages : [];
   if (!data.stepImages.some(Boolean)) {
     showMessage(form, words().imageRequired, "error");
+    submit.disabled = false;
+    document.getElementById("step-image-input").focus();
+    return;
+  }
+  if (data.stepImages.filter(Boolean).length > data.steps.length) {
+    showMessage(form, words().stepImagesForSteps, "error");
     submit.disabled = false;
     document.getElementById("step-image-input").focus();
     return;

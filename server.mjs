@@ -100,7 +100,7 @@ function notifyUser(userId, notification) {
     id: randomUUID(), userId, type: notification.type,
     actorName: notification.actorName || "Repairly",
     repairId: notification.repairId || null, reportId: notification.reportId || null,
-    title: notification.title || "", createdAt: new Date().toISOString(), readAt: null
+    title: notification.title || "", text: notification.text || "", createdAt: new Date().toISOString(), readAt: null
   };
   database.notifications.push(item);
   if (database.notifications.length > 10_000) database.notifications.splice(0, database.notifications.length - 10_000);
@@ -921,6 +921,17 @@ async function handleApi(request, response, url) {
     await saveDatabase();
     void syncDiscordTicketStatus(report, body.status).catch((error) => console.error("Discord ticket status sync failed:", error.message || error));
     return json(response, 200, { report });
+  }
+
+  const adminUserMessage = url.pathname.match(/^\/api\/admin\/users\/([a-z\d-]+)\/messages$/i);
+  if (adminUserMessage) {
+    if (!isAdmin(user)) return apiError(response, 403, "admin_required", "Nur Admins können Nachrichten an Nutzer senden.");
+    const target = database.users.find((item) => item.id === adminUserMessage[1]);
+    if (!target) return apiError(response, 404, "not_found", "Dieses Konto wurde nicht gefunden.");
+    const text = normalizeText(body.text, 2000, "Die Nachricht");
+    const notification = notifyUser(target.id, { type: "admin_message", actorName: user.name, text });
+    await saveDatabase();
+    return json(response, 201, { notification: { id: notification.id, userId: target.id, createdAt: notification.createdAt } });
   }
 
   const roleUpdate = url.pathname.match(/^\/api\/admin\/users\/([a-z\d-]+)$/i);

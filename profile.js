@@ -53,22 +53,42 @@
   }
 
   async function imageData(file, maxSize, maxBytes) {
-    if (!file || !/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error(document.documentElement.lang.startsWith("en") ? "Choose a JPG, PNG, or WebP image." : "Bitte ein JPG-, PNG- oder WebP-Bild wählen.");
+    const supportedType = /^image\/(jpeg|jpg|png|webp)$/i.test(file?.type || "") || (!file?.type && /\.(jpe?g|png|webp)$/i.test(file?.name || ""));
+    if (!file || !supportedType) throw new Error(document.documentElement.lang.startsWith("en") ? "Choose a JPG, PNG, or WebP image." : "Bitte ein JPG-, PNG- oder WebP-Bild wählen.");
     if (file.size > 12 * 1024 * 1024) throw new Error(document.documentElement.lang.startsWith("en") ? "Image files must be under 12 MB." : "Bilddateien müssen kleiner als 12 MB sein.");
-    const bitmap = await createImageBitmap(file);
+    let bitmap;
+    if (typeof window.createImageBitmap === "function") {
+      try { bitmap = await window.createImageBitmap(file); } catch {}
+    }
+    if (!bitmap) {
+      bitmap = await new Promise((resolve, reject) => {
+        const image = new Image();
+        const source = URL.createObjectURL(file);
+        image.onload = () => { URL.revokeObjectURL(source); resolve(image); };
+        image.onerror = () => { URL.revokeObjectURL(source); reject(new Error(document.documentElement.lang.startsWith("en") ? "Image could not be opened." : "Das Bild konnte nicht geöffnet werden.")); };
+        image.src = source;
+      });
+    }
     const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
     const canvas = document.createElement("canvas");
     canvas.width = Math.max(1, Math.round(bitmap.width * scale));
     canvas.height = Math.max(1, Math.round(bitmap.height * scale));
     const context = canvas.getContext("2d", { alpha: true });
+    if (!context) throw new Error(document.documentElement.lang.startsWith("en") ? "Image processing is not available in this browser." : "Bildverarbeitung ist in diesem Browser nicht verfügbar.");
     context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    bitmap.close?.();
     let quality = .82;
     let blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", quality));
-    while (blob && blob.size > maxBytes && quality > .38) {
-      quality -= .1;
+    while ((!blob || blob.size > maxBytes) && (quality > .32 || Math.max(canvas.width, canvas.height) > 320)) {
+      if (quality > .32) quality = Math.max(.32, quality - .1);
+      else {
+        canvas.width = Math.max(1, Math.round(canvas.width * .82));
+        canvas.height = Math.max(1, Math.round(canvas.height * .82));
+        context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        quality = .72;
+      }
       blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", quality));
     }
+    bitmap.close?.();
     if (!blob || blob.size > maxBytes) throw new Error(document.documentElement.lang.startsWith("en") ? "Image is too large after compression." : "Das Bild ist nach dem Verkleinern noch zu groß.");
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -133,13 +153,6 @@
       stepImageField.value = "";
       app.pendingStepImages = [];
       app.showToast(words().stepImageLimit, "error");
-      return;
-    }
-    const stepCount = document.querySelector('#repair-form [name="steps"]').value.split(/\r?\n/).map((step) => step.trim()).filter(Boolean).length;
-    if (files.length > stepCount) {
-      stepImageField.value = "";
-      app.pendingStepImages = [];
-      app.showToast(words().stepImagesForSteps, "error");
       return;
     }
     try {
@@ -291,6 +304,7 @@
   window.RepairlyEnhancements = { renderAdminThread };
 
   function notificationText(item) {
+    if (item.type === "admin_message") return item.actorName + " " + words().notificationAdminMessage;
     if (item.type === "like") return item.actorName + " " + words().notificationLiked;
     if (item.type === "comment") return item.actorName + " " + words().notificationCommented;
     if (item.type === "support_closed") return item.actorName + " " + words().notificationSupportClosed;
@@ -314,6 +328,7 @@
         row.appendChild(avatarElement({ name: item.actorName, avatarData: null }));
         const copy = document.createElement("span"); copy.className = "notification-copy";
         addText(copy, "strong", "", notificationText(item)); addText(copy, "time", "", prettyDate(item.createdAt));
+        if (item.type === "admin_message" && item.text) addText(copy, "span", "notification-message", item.text);
         row.appendChild(copy); notificationList.appendChild(row);
       });
     } catch { if (notificationDialog.open) addText(notificationList, "p", "profile-empty", words().notificationsLoadError); }

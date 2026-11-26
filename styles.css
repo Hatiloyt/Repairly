@@ -708,6 +708,13 @@ body.is-live-maintenance { overflow: hidden; }
   .step-card:hover, .button:hover { transform: none; }
 }
 
+.notification-message { display: block; margin-top: 7px; color: var(--muted); font-size: 10px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.admin-user-actions { display: grid; justify-items: start; gap: 6px; }
+.admin-user-message-form { display: grid; min-width: 210px; gap: 7px; white-space: normal; }
+.admin-user-message-form label { display: grid; gap: 5px; color: var(--muted); font-size: 9px; }
+.admin-user-message-form textarea { width: 100%; min-height: 72px; resize: vertical; padding: 8px; border: 1px solid var(--line-strong); background: var(--page); color: var(--ink); font: inherit; font-size: 10px; }
+.admin-user-message-buttons { display: flex; gap: 6px; }
+
 /* Signed-in app, garage, support, and admin surfaces */
 .nav-button { padding: 0; border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; }
 .is-authenticated .hero, .is-authenticated .promo-section, .is-authenticated .how-section, .is-authenticated .about-section { display: none; }
@@ -908,7 +915,10 @@ body.is-live-maintenance { overflow: hidden; }
 
 .password-input-wrap { display: flex; align-items: stretch; gap: 0; }
 .password-input-wrap input { min-width: 0; flex: 1; }
-.password-toggle { min-width: 76px; padding: 0 10px; border: 1px solid var(--line-strong); border-left: 0; background: var(--surface-soft); color: var(--ink); cursor: pointer; font-size: 10px; font-weight: 700; }
+.password-toggle { display: grid; width: 46px; min-width: 46px; place-items: center; padding: 0; border: 1px solid var(--line-strong); border-left: 0; background: var(--surface-soft); color: var(--ink); cursor: pointer; }
+.password-toggle svg { width: 18px; height: 18px; }
+.password-toggle .password-eye-closed, .password-toggle[aria-pressed="true"] .password-eye-open { display: none; }
+.password-toggle[aria-pressed="true"] .password-eye-closed { display: initial; }
 .password-toggle:hover, .resend-verification:hover { background: var(--surface); }
 .resend-verification { justify-self: start; padding: 0; border: 0; background: transparent; color: var(--accent-strong); cursor: pointer; font-size: 10px; font-weight: 700; text-align: left; }
 .oauth-providers { margin-top: 20px; }
