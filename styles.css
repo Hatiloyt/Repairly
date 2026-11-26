@@ -863,7 +863,9 @@ body.is-live-maintenance { overflow: hidden; }
 .admin-feedback { margin: 10px 0 0; }
 .maintenance-page { display: grid; min-height: 100vh; place-items: center; padding: 26px; }
 .maintenance-page-content { width: min(100%, 650px); }
-.maintenance-brand { margin-bottom: 24px; }
+.maintenance-page-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.maintenance-brand { margin-bottom: 0; }
+.maintenance-login-button { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
 .maintenance-message-card { padding: clamp(25px, 6vw, 56px); border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow); }
 .maintenance-page-icon { display: grid; width: 54px; height: 54px; margin-bottom: 26px; place-items: center; background: var(--accent); color: var(--accent-ink); }
 .maintenance-page-icon svg { width: 29px; height: 29px; }

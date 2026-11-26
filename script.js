@@ -316,6 +316,7 @@ document.getElementById("verify-email-code").addEventListener("click", async fun
     deliverSupportNotifications();
     form.reset();
     document.getElementById("email-code-panel").hidden = true;
+    if (window.location.pathname === "/admin-login") window.history.replaceState(null, "", "/");
     accountDialog.close();
     showToast(words().emailVerified, "success");
   } catch (error) { showMessage(form, friendlyError(error), "error"); }
@@ -1535,6 +1536,7 @@ async function submitAuth(form, mode) {
       button.setAttribute("aria-label", words().passwordShow);
     });
     showMessage(form, mode === "register" ? words().registerSuccess : words().loginSuccess, "success");
+    if (window.location.pathname === "/admin-login") window.history.replaceState(null, "", "/");
     window.setTimeout(function () { if (accountDialog.open) accountDialog.close(); }, 650);
   } catch (error) {
     showMessage(form, friendlyError(error), "error");
@@ -1668,6 +1670,13 @@ async function start() {
   const oauthResult = query.get("oauth");
   const verified = query.get("email-verified");
   const verification = query.get("email-verification");
+  const adminLogin = query.get("admin-login") === "1";
+  if (adminLogin) {
+    document.querySelector('[data-account-action][data-account-mode="register"]')?.setAttribute("hidden", "");
+    document.getElementById("register-tab")?.setAttribute("hidden", "");
+    if (currentUser?.role === "admin") window.history.replaceState(null, "", "/");
+    else { setAuthMode("login"); accountDialog.showModal(); }
+  }
   let message = "";
   let isError = false;
   if (verified) message = words().emailVerified;

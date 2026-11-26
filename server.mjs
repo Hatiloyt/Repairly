@@ -591,7 +591,14 @@ async function handleApi(request, response, url) {
     }
     try {
       const profile = await oauthProfile(provider, url.searchParams.get("code"), request);
+      if (database.maintenance.enabled) {
+        const email = typeof profile.email === "string" ? profile.email.trim().toLowerCase() : "";
+        const providerId = String(profile.id || "");
+        const linkedAccount = database.users.find((item) => item.authProviders?.[provider] === providerId) || database.users.find((item) => item.email === email);
+        if (!isAdmin(linkedAccount)) return redirect(response, "/maintenance.html", { "Set-Cookie": expireOAuthStateCookie() });
+      }
       const account = await findOrCreateOAuthUser(provider, profile);
+      if (database.maintenance.enabled && !isAdmin(account)) return redirect(response, "/maintenance.html", { "Set-Cookie": expireOAuthStateCookie() });
       const sessionToken = await createSession(account);
       return redirect(response, "/?oauth=success", { "Set-Cookie": [sessionCookie(sessionToken), expireOAuthStateCookie()] });
     } catch (error) {
@@ -605,12 +612,15 @@ async function handleApi(request, response, url) {
     const record = database.emailVerifications.find((item) => item.tokenHash === hashToken(token) && item.expiresAt > Date.now());
     const account = record && database.users.find((item) => item.id === record.userId);
     if (!account) return redirect(response, "/?email-verification=expired");
+    if (database.maintenance.enabled && !isAdmin(account)) return redirect(response, "/maintenance.html");
     account.emailVerified = true;
     database.emailVerifications = database.emailVerifications.filter((item) => item !== record);
     const sessionToken = await createSession(account);
     return redirect(response, "/?email-verified=1", { "Set-Cookie": sessionCookie(sessionToken) });
   }
-  if (database.maintenance.enabled && !isAdmin(user)) {
+  const maintenanceLoginAllowed = (request.method === "GET" && url.pathname === "/api/session")
+    || (request.method === "POST" && ["/api/auth/login", "/api/auth/verify-code"].includes(url.pathname));
+  if (database.maintenance.enabled && !isAdmin(user) && !maintenanceLoginAllowed) {
     return apiError(response, 503, "maintenance", database.maintenance.message || "Repairly ist gerade kurz in Wartung. Bitte schau später wieder vorbei.");
   }
   if (request.method === "GET" && url.pathname === "/api/session") {
@@ -723,6 +733,7 @@ async function handleApi(request, response, url) {
     if (!record || submittedHash.length !== savedHash.length || !timingSafeEqual(submittedHash, savedHash)) return apiError(response, 400, "invalid_verification_code", "Der Code ist falsch oder abgelaufen. Fordere einen neuen an.");
     const account = database.users.find((item) => item.id === record.userId);
     if (!account) return apiError(response, 400, "invalid_verification_code", "Der Code ist falsch oder abgelaufen. Fordere einen neuen an.");
+    if (database.maintenance.enabled && !isAdmin(account)) return apiError(response, 503, "maintenance", database.maintenance.message || "Repairly ist gerade kurz in Wartung.");
     account.emailVerified = true;
     database.emailVerifications = database.emailVerifications.filter((item) => item !== record);
     loginAttempts.delete(rateLimitKey(request, `code:${email}`));
@@ -751,6 +762,7 @@ async function handleApi(request, response, url) {
     const saved = Buffer.from(userRecord.passwordHash, "hex");
     if (submitted.length !== saved.length || !timingSafeEqual(submitted, saved)) return apiError(response, 401, "invalid_credentials", "E-Mail-Adresse oder Passwort stimmen nicht.");
     if (!userRecord.emailVerified) return apiError(response, 403, "email_not_verified", "Bitte bestätige zuerst deine E-Mail-Adresse. Du kannst dir den Bestätigungslink erneut senden lassen.");
+    if (database.maintenance.enabled && !isAdmin(userRecord)) return apiError(response, 503, "maintenance", database.maintenance.message || "Repairly ist gerade kurz in Wartung.");
     loginAttempts.delete(rateLimitKey(request, email));
     const token = await createSession(userRecord);
     return json(response, 200, { user: publicUser(userRecord) }, { "Set-Cookie": sessionCookie(token) });
@@ -1103,14 +1115,13 @@ async function serveStatic(request, response, url) {
   if (request.method !== "GET" && request.method !== "HEAD") return json(response, 405, { error: "Method not allowed." });
   let pathname = decodeURIComponent(url.pathname);
   const visitorIsAdmin = isAdmin(getCurrentUser(request));
-  if (database.maintenance.enabled && !visitorIsAdmin && ["/", "/index.html", "/maintenance.html"].includes(pathname)) {
+  const isAdminLogin = pathname === "/admin-login";
+  if (isAdminLogin) pathname = "/index.html";
+  if (database.maintenance.enabled && !visitorIsAdmin && !isAdminLogin && ["/", "/index.html", "/maintenance.html"].includes(pathname)) {
     return serveMaintenance(response);
   }
   if (!database.maintenance.enabled && pathname === "/maintenance.html") {
     response.writeHead(302, { Location: "/", "Cache-Control": "no-store" }); response.end(); return;
-  }
-  if (database.maintenance.enabled && !visitorIsAdmin && pathname === "/script.js") {
-    return apiError(response, 503, "maintenance", database.maintenance.message || "Repairly ist gerade kurz in Wartung.");
   }
   if (pathname === "/") pathname = "/index.html";
   const path = resolve(projectRoot, "." + pathname);
